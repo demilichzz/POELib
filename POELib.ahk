@@ -340,7 +340,7 @@ sortItem()		;sort single item by clipboard
 				{
 					return itemType_Misc
 				}
-				else if((currency_flg and (Instr(A_LoopField, "Shard")>0 or Instr(A_LoopField, "Catalyst")>0 or Instr(A_LoopField, "Oil")>0) or Instr(A_LoopField, "Breachstone")>0) or Instr(clipboard,"Delirium Orb")>0)
+				else if((currency_flg and (Instr(A_LoopField, "Shard")>0 or Instr(A_LoopField, "Catalyst")>0) or Instr(A_LoopField, "Breachstone")>0) or Instr(clipboard,"Delirium Orb")>0)
 				{
 					return itemType_Shard
 				}

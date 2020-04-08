@@ -176,7 +176,7 @@ autoSort(sheet)		;auto sort main
 					;~ item_type := item_type - 50
 					;~ sheet_index := item_type	;set target sheet = item_type
 				;~ }
-				if((item_type = itemType_Valuable or item_type = itemType_UniqueTemp1 or item_type = itemType_SpecialBase) and rare_identify_flg=1)
+				if((item_type = itemType_Valuable or item_type = itemType_UniqueTemp1 or item_type = itemType_UniqueCollect or item_type = itemType_SpecialBase) and rare_identify_flg=1)
 				{
 					CommonClick_left()		;unique&misc equip identifie	
 					Sleep,10
