@@ -8,8 +8,8 @@ SetKeyDelay, 0, 3
 SetStoreCapslockMode, off
 autoShutDown:=0
 rare_identify_flg := 1
-#Include D:\Program Files\AutoHotkey\script\autoMacroLib.ahk
-#Include D:\Program Files\AutoHotkey\script\POELib.ahk
+#Include D:\Program Files\AutoHotkey\script\POELib\autoMacroLib.ahk
+#Include D:\Program Files\AutoHotkey\script\POELib\POELib.ahk
 
 *^P::Pause
 *^O::ExitApp
@@ -51,10 +51,18 @@ Return
 ~^Numpad2::		;auto sort rare equip
 {
 	POEConstantLib_constantDefine()
-	sort_list := [26]
+	sort_list := [4,5,6,7,8]
 	for index, element in sort_list
 	{
 		autoSort(element)
+	}
+	if(autoShutDown=1)	;if auto shutdown mode then vendor after sort dealed
+	{
+		vendor_sheet_list := [itemType_TempTrashNormal] ;vendor list
+		for index, element in vendor_sheet_list
+		{
+			autoVendorTrash(element)
+		}
 	}
 	endExecute()
 }
@@ -74,16 +82,12 @@ Return
 	CtrlMoveItemByGrid(0,4)
 	CtrlMoveItemByGrid(1,4)	;store scrolls
 	CtrlMoveItemByGrid(2,4)
-	vendor_sheet_list := [itemType_TempTrashNormal,itemType_TempTrashRare] ;vendor list
-	;vendor_sheet_list := [itemType_Shoe,itemType_Body] ;vendor list
+	vendor_sheet_list := [itemType_TempTrashNormal] ;vendor list
 	for index, element in vendor_sheet_list
 	{
 		autoVendorTrash(element)
 	}
-	if(autoShutDown=1)
-	{
-		run shutdown -s -t 30
-	}
+	endExecute()
 }
 Return
 

@@ -13,7 +13,7 @@ autoEstate:=0
 autoWstate:=0
 autoTstate:=0
 autoSstate:=0
-#Include D:\Program Files\AutoHotkey\script\autoMacroLib.ahk
+#Include D:\Program Files\AutoHotkey\script\POELib\autoMacroLib.ahk
 
 
 ~^P::Pause

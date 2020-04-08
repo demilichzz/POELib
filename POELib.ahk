@@ -9,7 +9,7 @@ SetStoreCapslockMode, off
 ;constant define
 
 ;constant define
-#Include D:\Program Files\AutoHotkey\script\autoMacroLib.ahk
+#Include D:\Program Files\AutoHotkey\script\POELib\autoMacroLib.ahk
 
 ~^Numpad9::		;test
 {
@@ -397,8 +397,15 @@ sortItem()		;sort single item by clipboard
 			; if (unid_flg := true)
 			if(true)
 			{
-				equip_type:=checkEquipInfo(cp)
-				return equip_type
+				local socket:=checkEquipInfo(clipboard)
+				if(socket=6)
+				{
+					return itemType_TempTrashNormal
+				}
+				else
+				{
+					return equip_type
+				}
 			}
 			;else
 			;{
@@ -607,26 +614,31 @@ checkGemType(cp)
 ;ilvl, sockets, links
 checkEquipInfo(cp)
 {
+	global
 	local clip_array := Object()
 	local match_iLvl := ("Item Level: #")
 	local match_sockets := ("Sockets: #")
 	local iLvl := -1
-	local sockets := -1
+	local socketInfo := -1
 	Loop, parse, cp, `n, `r
 	{
 		clip_array[A_Index] := A_LoopField
 	}
 	for index, element in clip_array
 	{
-		if (InStr(element,"Level") > 0 and level=-1)
+		if (InStr(element,"Item Level") > 0 and iLvl=-1)
 		{
-			iLvl := getModValue(element,match_level)
+			iLvl := getModValue(element,match_iLvl)
 		}
-		if (InStr(element,"Quality") > 0 and quality=-1)
+		if (InStr(element,"Sockets") > 0 and socketInfo=-1)
 		{
-			sockets := getModValue(element,match_quality)
+			socketInfo := getModValue(element,match_sockets)
 		}
 	}
+	socketInfo := StrReplace(socketInfo," ","")
+	socketInfo := StrReplace(socketInfo,"-","")
+	local sockets := StrLen(socketInfo)
+	return sockets
 }
 
 checkEquipType(text)	;check equip type by clipboard
