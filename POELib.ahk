@@ -259,7 +259,7 @@ sortItem()		;sort single item by clipboard
 	{
 		return itemType_Misc
 	}
-	else if(Instr(clipboard,"Elder Item")>0 or Instr(clipboard,"Shaper Item")>0 or Instr(clipboard,"Crusader Item")>0 or Instr(clipboard,"Hunter Item")>0 or Instr(clipboard,"Warlord Item")>0 or Instr(clipboard,"Redeemer Item")>0)
+	else if(Instr(clipboard,"Rarity: Divination Card")=0 and (Instr(clipboard,"Elder Item")>0 or Instr(clipboard,"Shaper Item")>0 or Instr(clipboard,"Crusader Item")>0 or Instr(clipboard,"Hunter Item")>0 or Instr(clipboard,"Warlord Item")>0 or Instr(clipboard,"Redeemer Item")>0))
 	{
 		return itemType_SpecialBase
 	}
@@ -341,6 +341,10 @@ sortItem()		;sort single item by clipboard
 					return itemType_Misc
 				}
 				else if((currency_flg and (Instr(A_LoopField, "Shard")>0 or Instr(A_LoopField, "Catalyst")>0) or Instr(A_LoopField, "Breachstone")>0) or Instr(clipboard,"Delirium Orb")>0)
+				{
+					return itemType_Shard
+				}
+				else if(currency_flg=false and Instr(A_LoopField, "Incubator")>0)
 				{
 					return itemType_Shard
 				}

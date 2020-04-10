@@ -51,17 +51,32 @@ Return
 ~^Numpad2::		;auto sort rare equip
 {
 	POEConstantLib_constantDefine()
-	sort_list := [4,5,6,7,8]
+	sort_list := [4,5,6,7,8,26,27]
 	for index, element in sort_list
 	{
 		autoSort(element)
 	}
-	if(autoShutDown=1)	;if auto shutdown mode then vendor after sort dealed
+	storeScrolls()
+	if(true)	;if auto shutdown mode then vendor after sort dealed
 	{
+		POEConstantLib_constantDefine()
 		vendor_sheet_list := [itemType_TempTrashNormal] ;vendor list
 		for index, element in vendor_sheet_list
 		{
 			autoVendorTrash(element)
+		}
+		
+		POEConstantLib_constantDefine()
+		array_itemAxis := Object()
+		Loop 8
+		{
+			array_temp := [0,0]
+			array_itemAxis[A_Index+itemType_Ring-1] := (array_temp)
+		}
+		vendor_fail_flg := 0
+		while(vendor_fail_flg =0)
+		{
+			vendor_fail_flg := autoVendor()
 		}
 	}
 	endExecute()
@@ -110,6 +125,14 @@ Return
 }
 Return
 
+storeScrolls()
+{
+	CtrlMoveItemByGrid(0,0)
+	CtrlMoveItemByGrid(0,4)
+	CtrlMoveItemByGrid(1,4)
+	CtrlMoveItemByGrid(2,4)
+}
+
 autoSort(sheet)		;auto sort main
 {
 	global
@@ -118,10 +141,7 @@ autoSort(sheet)		;auto sort main
 	flag:=true
 	source_sheet := sheet
 	openSheet(0)	;open temp item sort sheet
-	CtrlMoveItemByGrid(0,0)
-	CtrlMoveItemByGrid(0,4)
-	CtrlMoveItemByGrid(1,4)
-	CtrlMoveItemByGrid(2,4)
+	storeScrolls()
 	if(rare_identify_flg = 1)	;identify rare equip and analyze
 	{
 		CtrlMoveCurrency(114,232,0,0)	;get a stack of scroll of wisdom
