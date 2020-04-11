@@ -51,13 +51,13 @@ Return
 ~^Numpad2::		;auto sort rare equip
 {
 	POEConstantLib_constantDefine()
-	sort_list := [4,5,6,7,8,26,27]
+	sort_list := [4,5,6,7,8]
 	for index, element in sort_list
 	{
 		autoSort(element)
 	}
 	storeScrolls()
-	if(true)	;if auto shutdown mode then vendor after sort dealed
+	if(false)	;if auto shutdown mode then vendor after sort dealed
 	{
 		POEConstantLib_constantDefine()
 		vendor_sheet_list := [itemType_TempTrashNormal] ;vendor list
@@ -314,6 +314,7 @@ autoSort(sheet)		;auto sort main
 	sortItemInBatch(array_type[itemType_Prophecy],itemType_Prophecy,60)		;shard
 	sortItemInBatch(array_type[itemType_Valuable],itemType_Valuable,60)		    ;s/e,valueable rare move to No.4 temp tab
 	sortItemInBatch(array_type[itemType_Veiled],itemType_Veiled,60)		    ;veiled
+	sortItemInBatch(array_type[itemType_Enchanted],itemType_Enchanted,12)		    ;enchanted
 	sortItemInBatch(array_type[itemType_TempTrashNormal],itemType_TempTrashNormal,60)		;trash nonrare 
 	sortItemInBatch(array_type[itemType_TempTrashRare],itemType_TempTrashRare,60)		;trash rare
 	sortUniqueItem(array_type[itemType_UniqueCollect],itemType_UniqueCollect,60)		;unique temp
@@ -353,7 +354,7 @@ sortUniqueItem(array_axis,tab_index,periodCount)
 			}
 		}
 	}
-	CheckInvIsEmpty()
+	CheckInvIsEmpty(source_sheet)
 }
 ;sort unique into unique collection sheet
 sortUniqueItemIntoTabs(tab_index,iCount,periodCount,full_mode_flg)
@@ -447,7 +448,7 @@ sortItemInBatch(array_axis,tab_index,periodCount)
 	}
 	if(array_axis.MaxIndex>0)
 	{
-		CheckInvIsEmpty()
+		CheckInvIsEmpty(source_sheet)
 	}
 }
 ;full_mode_flg=true : try to store every grid until last
@@ -828,35 +829,75 @@ autoVendor()
 ;hh=item height
 ;ww=item width
 ;div=stash type 12x12 or 24x24
+;reverse pick order when item is not ring or amulet
 pickEquip(page,hh,ww,div)	
 {
 	global
 	;Msgbox % page_list[1][1]
 	pe_result := 0
 	openSheet(page)
-	y_repeat := div / hh
-	x_repeat := div / ww
-	
-	i:=array_itemAxis[page][1]
-	j:=array_itemAxis[page][2]
-	flag := true
-	while(flag)
+	local y_repeat := div / hh
+	local x_repeat := div / ww
+	if(hh=1 and ww=1)	;ring and amulet, normal pick order
 	{
-		x := stash_start_x + (i * 632 // div * ww)
-		y := stash_start_y + (j * 632 // div * hh)
-		if(checkItemInfo(x,y))	;item exists
+		i:=array_itemAxis[page][1]
+		j:=array_itemAxis[page][2]
+		flag := true	
+		while(flag)
 		{
-			CtrlMoveItem(x,y)
-			flag := false
-		}
-		else	;item not exists
-		{
-			j:=j+1
-			if (j>=y_repeat)
+			local x := stash_start_x + (i * 632 // div * ww)
+			local y := stash_start_y + (j * 632 // div * hh)
+			if(checkItemInfo(x,y))	;item exists
 			{
-				j:=0
-				i:=i+1
-				if (i>=x_repeat)
+				CtrlMoveItem(x,y)
+				flag := false
+			}
+			else	;item not exists
+			{
+				j:=j+1
+				if (j>=y_repeat)
+				{
+					j:=0
+					i:=i+1
+					if (i>=x_repeat)
+					{
+						;MsgBox 该页物品不足，停止循环
+						flag:=false
+						pe_result := 1
+						;Pause
+					}
+				}
+			}
+		}
+	}
+	else	;reverse pick order
+	{
+		i:=array_itemAxis[page][1]
+		j:=array_itemAxis[page][2]
+		if(i=0 and j=0)
+		{
+			i:= x_repeat - 1
+			j:= y_repeat - 1
+		}
+		flag := true
+		while(flag)
+		{
+			local x := stash_start_x + (i * 632 // div * ww)
+			local y := stash_start_y + (j * 632 // div * hh)
+			if(checkItemInfo(x,y))	;item exists
+			{
+				CtrlMoveItem(x,y)
+				flag := false
+			}
+			else	;item not exists
+			{
+				j:=j-1
+				if (j<0)
+				{
+					j:=y_repeat -1 
+					i:=i-1
+				}
+				if(i<=0 and j<=0)
 				{
 					;MsgBox 该页物品不足，停止循环
 					flag:=false
@@ -866,6 +907,7 @@ pickEquip(page,hh,ww,div)
 			}
 		}
 	}
+	
 	array_itemAxis[page][1] := i
 	array_itemAxis[page][2] := j
 	return pe_result
@@ -1109,6 +1151,7 @@ sortItemByValue(item_type,item_value,exec_sheet)
 
 endExecute()	;end
 {
+	global
 	if(autoShutDown=1)
 	{
 		run shutdown -s -t 30

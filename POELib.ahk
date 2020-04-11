@@ -340,7 +340,11 @@ sortItem()		;sort single item by clipboard
 				{
 					return itemType_Misc
 				}
-				else if((currency_flg and (Instr(A_LoopField, "Shard")>0 or Instr(A_LoopField, "Catalyst")>0) or Instr(A_LoopField, "Breachstone")>0) or Instr(clipboard,"Delirium Orb")>0)
+				else if(Instr(A_LoopField, "'s Breachstone")>0)	;normal breachstone
+				{
+					return itemType_Misc
+				}
+				else if((currency_flg and Instr(A_LoopField, "Shard")>0) or Instr(A_LoopField, "Breachstone")>0 or Instr(clipboard,"Delirium Orb")>0)
 				{
 					return itemType_Shard
 				}
@@ -694,7 +698,7 @@ checkTricket(text)
 	result := 0
 	StringSplit, array_out, text, %A_Space%, . 
 	comp_text = %array_out2%
-	Loop 4
+	Loop 5
 	{
 		match_text := array_Tri[A_Index]
 		if (comp_text == match_text)
@@ -737,6 +741,11 @@ checkHelm(text)
 			result := itemType_Helm		;helm tab index
 			Break
 		}
+	}
+	if(result=itemType_Helm and InStr(clipboard,"(enchant)")>0)	;enchant helm check
+	{
+		
+		result := itemType_Enchanted
 	}
 	return result
 }
@@ -862,7 +871,7 @@ CheckSheetIsEmpty()
 	sheetIsEmptyCount := CheckEmptyByAxis(stash_start_x + 0*disp/2,stash_start_y + 0*disp/2) and CheckEmptyByAxis(stash_start_x + 3*disp/2,stash_start_y + 0*disp/2) and CheckEmptyByAxis(stash_start_x + 0*disp/2,stash_start_y + 3*disp/2) and CheckEmptyByAxis(stash_start_x + 3*disp/2,stash_start_y + 3*disp/2)
 	return sheetIsEmptyCount
 }
-CheckInvIsEmpty()
+CheckInvIsEmpty(origin_index)
 {
 	global
 	local i:=0
@@ -889,6 +898,7 @@ CheckInvIsEmpty()
 			i:=i+1
 		}
 	}
+	openSheet(origin_index)
 }
 CheckEmptyByAxis(x,y)
 {
