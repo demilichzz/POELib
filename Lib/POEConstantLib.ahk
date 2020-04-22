@@ -25,8 +25,8 @@ POEConstantLib_constantDefine()
 	tab_disp_y := 22
 	current_page := 0
 	scroll_start_x := 881
-	scroll_start_y := 290
-	scroll_disp := 180
+	scroll_start_y := 227
+	scroll_disp := 170
 	scroll_color := 0x000000
 	;for auto vendor
 	chest_x := 1018
@@ -38,7 +38,7 @@ POEConstantLib_constantDefine()
 	vendor_y := 454
 	vendor_sell_x := 922
 	vendor_sell_y := 338
-	vendor_sell_cc := 0x5C5642
+	vendor_sell_cc := 0x5F5A46
 	vendor_check_x := 928
 	vendor_check_y := 19
 	vendor_check_cc := 0xE3D7A6
@@ -92,9 +92,20 @@ POEConstantLib_constantDefine()
 	itemType_UniqueCollect:=30
 	itemType_Sample:=61
 	itemType_Enchanted:=63
-	itemType_HighQGem:=77
-	itemType_Prophecy:=78
-	itemType_Oil:=86
+	itemType_HighQGem:=65
+	itemType_Prophecy:=66
+	itemType_Oil:=67
+	;
+	
+	;craft
+	currency_list := Object()
+	currency_list["trans"] := [40,310,0x22334F]
+	currency_list["alter"] := [100,310,0x419192]
+	currency_list["aug"] := [220,365,0x282935]
+	currency_list["regal"] := [415,310,0x43658C]
+	currency_list["scour"] := [160,490,0x8F9193]
+	craft_item_x := 332
+	craft_item_y := 475
 	;
 	
 	;for analyzer

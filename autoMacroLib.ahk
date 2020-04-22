@@ -1,3 +1,6 @@
+*^P::Pause
+*^O::ExitApp
+
 ^Left::
 {
 	MouseMove,-1,0,50,R
@@ -33,8 +36,8 @@ Return
 
 !Numpad2::
 {
-	x:=928
-	y:=19
+	x:=922
+	y:=338
 	PixelGetColor, color, %x%, %y%, RGB
 	Clipboard = %x%,%y%,%color%
 	Msgbox %x%,%y%,%color%
@@ -156,6 +159,29 @@ ColorClick(x,y,xtar,ytar,cc,mode,clickdelay)
 		}
 	}	
 }
+
+ColorClickRight(x,y,xtar,ytar,cc,mode,clickdelay)
+{
+	flg := false
+	while (flg = false)
+	{
+		PixelGetColor,color,xtar,ytar,RGB
+		;Msgbox %cc%,%color%
+		;text = %x%,%y%,%xtar%,%ytar%,%cc%,color:%color%
+		;TrayTip, , %text%
+		if ((color = cc and mode = true) or (color <> cc and mode = false))
+		{
+			flg := true
+		    Sleep,100
+		}
+		else
+		{
+			CommonClickRight(x,y)
+			Sleep,clickdelay
+		}
+	}	
+}
+
 ColorClickDiff(x,y,xtar,ytar,cc,mode,clickdelay)
 {
 	flg := false
@@ -202,5 +228,15 @@ CommonClick(x,y)
 	Click Down Left
 	Sleep,10
 	Click Up Left
+	Sleep,10
+}
+
+CommonClickRight(x,y)
+{
+	MouseMove x,y
+	Sleep,10
+	Click Down Right
+	Sleep,10
+	Click Up Right
 	Sleep,10
 }

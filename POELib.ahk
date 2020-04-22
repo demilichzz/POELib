@@ -13,13 +13,10 @@ SetStoreCapslockMode, off
 
 ~^Numpad9::		;test
 {
-	POEConstantLib_constantDefine()
-	array_equipbase := sortItem()
-	;eb := "Test"
-	;array_equipbase[eb] := 1
-	;sa := "Test"	
-	;MsgBox % array_equipbase[sa]
-	MsgBox % array_equipbase
+	;POEConstantLib_constantDefine()
+	;array_equipbase := sortItem()
+	;MsgBox % array_equipbase
+	openVendor()
 }
 Return
 
@@ -45,7 +42,16 @@ openSheet(index)	;open the index start by 0
 		ColorClick(scroll_start_x,scroll_start_y+scroll_disp*target_page,scroll_start_x,scroll_start_y+scroll_disp*target_page,scroll_color,false,500)
 		current_page := target_page
 	}
-	ColorClickMulti(tab_start_x,tab_start_y+10+(tab_disp_y*(index-(target_page*30))),currency_x,currency_y,currency_color_list,false,500)
+	local delay := 500
+	if(index = itemType_Ring or index = itemType_Amu)
+	{
+		delay:=2000
+	}
+	else
+	{
+		delay:=500
+	}
+	ColorClickMulti(tab_start_x,tab_start_y+10+(tab_disp_y*(index-(target_page*30))),currency_x,currency_y,currency_color_list,false,delay)
 }
 CtrlClick()
 {
@@ -94,6 +100,42 @@ ColorClickMulti(x,y,xtar,ytar,cclist,mode,clickdelay)
 			Sleep,clickdelay
 		}
 	}	
+}
+
+;analyze item match values
+analyzeItemExMatch(cp,craft_list)
+{
+	global
+	local result_list := Object()
+	local base_attrib_list := Object()
+	base_attrib_list[1] := "1 Added Passive Skill is "
+	base_attrib_list[2] := "Added Small Passive Skills also grant:"
+	base_attrib_list[3] := "2 Added Passive Skills are Jewel Sockets"
+	base_attrib_list[4] := "Added Small Passive Skills have 25% increased Effect"
+	local attribute_count := 0
+	local matched_count := 0
+	local attribute_str := ""
+	Loop, parse, clipboard, `n, `r
+	{
+		attribute_str := A_LoopField
+		Loop % base_attrib_list.Length()
+		{
+			if(InStr(attribute_str,base_attrib_list[A_Index])>0)
+			{
+				attribute_count := attribute_count+1
+			}
+		}
+		Loop % craft_list.Length()
+		{
+			if(InStr(attribute_str,craft_list[A_Index])>0)
+			{
+				matched_count := matched_count+1
+			}
+		}
+	}
+	result_list[1] := attribute_count
+	result_list[2] := matched_count
+	return result_list
 }
 
 ;analyze item value by clipboard
@@ -405,15 +447,8 @@ sortItem()		;sort single item by clipboard
 			; if (unid_flg := true)
 			if(true)
 			{
-				local socket:=checkEquipInfo(clipboard)
-				if(socket=6)
-				{
-					return itemType_TempTrashNormal
-				}
-				else
-				{
-					return equip_type
-				}
+				local equip_info:=checkEquipInfo(clipboard,equip_type)
+				return equip_info
 			}
 			;else
 			;{
@@ -620,7 +655,7 @@ checkGemType(cp)
 }
 ;check detailed equip info
 ;ilvl, sockets, links
-checkEquipInfo(cp)
+checkEquipInfo(cp,origin_type)
 {
 	global
 	local clip_array := Object()
@@ -646,7 +681,18 @@ checkEquipInfo(cp)
 	socketInfo := StrReplace(socketInfo," ","")
 	socketInfo := StrReplace(socketInfo,"-","")
 	local sockets := StrLen(socketInfo)
-	return sockets
+	if(sockets>=6)
+	{
+		return itemType_TempTrashNormal
+	}
+	else if(iLvl<60)
+	{
+		return itemType_TempTrashRare
+	}
+	else
+	{
+		return origin_type
+	}
 }
 
 checkEquipType(text)	;check equip type by clipboard
@@ -840,8 +886,8 @@ checkBody(text)
 checkLineNotEmpty(i)
 {
 	global
-	result := false
-	j:=0
+	local result := false
+	local j:=0
 	while(not result)
 	{
 		x := stash_start_x + (i * 632 // div)
@@ -904,6 +950,16 @@ CheckEmptyByAxis(x,y)
 {
 	return CheckColorRGB(x,y,0x101010)
 }
+
+useCurrency(ctype)
+{
+	global
+	local x := currency_list[ctype][1]
+	local y := currency_list[ctype][2]
+	local cc := currency_list[ctype][3]
+	ColorClickRight(x,y,x,y,cc,true,100)
+}
+
 ;check if item exist by clipboard
 CheckItemInfo(x,y)
 {
@@ -925,8 +981,8 @@ openStash()
 openVendor()
 {
 	global
-	ColorClickDiff(vendor_x,vendor_y,vendor_check_x,vendor_check_y,vendor_check_cc,true,500)
-	ColorClick(vendor_sell_x,vendor_sell_y,vendor_accept_x,vendor_accept_y,vendor_accept_cc,true,500)
+	ColorClickDiff(vendor_x,vendor_y,vendor_check_x,vendor_check_y,vendor_check_cc,true,1000)
+	ColorClickDiff(vendor_sell_x,vendor_sell_y,vendor_accept_x,vendor_accept_y,vendor_accept_cc,true,500)
 }
 vendorDeal()
 {

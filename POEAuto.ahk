@@ -1,6 +1,6 @@
 #Persistent
 #SingleInstance force
-#InstallKeybdHook    ;°²×°¼üÅÌ¹³×Ó£¬Ö÷ÒªÓÃÀ´ÅĞ¶Ï¼üÅÌÊÇ·ñ´¦ÓÚ°´ÏÂ×´Ì¬£¬Èç¹ûÊÇ¾ÍÒ»Ö±·¢ËÍ¼üÅÌÏûÏ¢£¡Èç¹û±¨¶¾µÄ»°¾ÍÊÇÕâÀï±¨¶¾£¬¼ÓÃÜÏÂÕâÒ»¾ä´úÂë¾ÍOKÁË
+#InstallKeybdHook    ;°²×°¼üÅÌ¹³×Ó£¬Ö÷ÒªÓÃÀ´ÅĞ¶Ï¼üÅÌÊÇ·ñ´¦ÓÚ°´ÏÂ×´Ì¬£¬Èç¹ûÊÇ¾ÍÒ»Ö±·¢ËÍ¼üÅÌÏûÏ¢£¡Èç¹û±¨¶¾µÄ»°¾ÍÊÇÕâÀï±¨¶¾£¬¼ÓÃÜÏÂÕâÒ»¾ä´úÂë¾ÍOKÁ
 #MaxHotkeysPerInterval 240
 #MaxThreadsPerHotkey 3
 Process, Priority, , high
@@ -10,9 +10,6 @@ autoShutDown:=0
 rare_identify_flg := 1
 #Include D:\Program Files\AutoHotkey\script\POELib\autoMacroLib.ahk
 #Include D:\Program Files\AutoHotkey\script\POELib\POELib.ahk
-
-*^P::Pause
-*^O::ExitApp
 
 !^Q::
 {
@@ -26,57 +23,37 @@ rare_identify_flg := 1
 }
 Return
 
-
 ~^Numpad1::		;auto vendor chaos recipe
 {
 	POEConstantLib_constantDefine()
-	array_itemAxis := Object()
-	Loop 8
-	{
-		array_temp := [0,0]
-		array_itemAxis[A_Index+itemType_Ring-1] := (array_temp)
-	}
-	vendor_fail_flg := 0
-	while(vendor_fail_flg =0)
-	{
-		vendor_fail_flg := autoVendor()
-	}
-	if(autoShutDown=1)
-	{
-		run shutdown -s -t 30
-	}
+	autoChaosVendorMain()
 }
 Return
 
 ~^Numpad2::		;auto sort rare equip
 {
 	POEConstantLib_constantDefine()
-	sort_list := [4,5,6,7,8]
+	sort_list := [4,5,6,7]
 	for index, element in sort_list
 	{
 		autoSort(element)
 	}
+	openSheet(0)
 	storeScrolls()
-	if(false)	;if auto shutdown mode then vendor after sort dealed
+	if(true)	;if auto shutdown mode then vendor after sort dealed
 	{
-		POEConstantLib_constantDefine()
-		vendor_sheet_list := [itemType_TempTrashNormal] ;vendor list
-		for index, element in vendor_sheet_list
+		if(true)
 		{
-			autoVendorTrash(element)
+			POEConstantLib_constantDefine()
+			vendor_sheet_list := [itemType_TempTrashNormal,itemType_TempTrash1,itemType_UniqueTemp3] ;vendor list
+			for index, element in vendor_sheet_list
+			{
+				autoVendorTrash(element)
+			}
 		}
-		
-		POEConstantLib_constantDefine()
-		array_itemAxis := Object()
-		Loop 8
+		if(true)
 		{
-			array_temp := [0,0]
-			array_itemAxis[A_Index+itemType_Ring-1] := (array_temp)
-		}
-		vendor_fail_flg := 0
-		while(vendor_fail_flg =0)
-		{
-			vendor_fail_flg := autoVendor()
+			autoChaosVendorMain()
 		}
 	}
 	endExecute()
@@ -97,7 +74,7 @@ Return
 	CtrlMoveItemByGrid(0,4)
 	CtrlMoveItemByGrid(1,4)	;store scrolls
 	CtrlMoveItemByGrid(2,4)
-	vendor_sheet_list := [itemType_TempTrashNormal] ;vendor list
+	vendor_sheet_list := [itemType_TempTrashNormal,itemType_TempTrash1] ;vendor list
 	for index, element in vendor_sheet_list
 	{
 		autoVendorTrash(element)
@@ -114,7 +91,18 @@ Return
 }
 Return
 
-~^Numpad6::
+~^Numpad6::		;auto craft
+{
+	POEConstantLib_constantDefine()
+	craft_list := Object()
+	craft_list[1] := "1 Added Passive Skill is Purposeful Harbinger"
+	craft_list[2] := "1 Added Passive Skill is Replenishing Presence"
+	craft_list[3] := "1 Added Passive Skill is a Jewel Socket"
+	autoCraft(craft_list)
+}
+Return
+
+~^Numpad8::
 {
 	POEConstantLib_constantDefine()
 	Sleep,10
@@ -124,6 +112,123 @@ Return
 	MsgBox %result%
 }
 Return
+
+autoCraft(craft_list)
+{
+	global
+	MouseMove craft_item_x,craft_item_y
+	local value_num:=0
+	local result_list := Object()
+	local success_flg := false
+	while(not success_flg)
+	{
+		MouseMove craft_item_x,craft_item_y
+		clipboard :=
+		Send ^c
+		Sleep,200
+		result_list := analyzeItemExMatch(clipboard,craft_list)
+		success_flg := autoCraftByAlt(result_list)
+	}
+}
+
+autoCraftByAlt(result_list)
+{
+	global
+	local attribute_count := result_list[1]
+	local match_count := result_list[2]
+	local wait_time := 200
+	if(attribute_count=3)
+	{
+		if(match_count=3)
+		{
+			return true
+		}
+		else
+		{
+			useCurrency("scour")
+			CommonClick(craft_item_x,craft_item_y)
+			Sleep,wait_time
+		}
+	}
+	else if(attribute_count=2)
+	{
+		if(match_count=2)
+		{
+			useCurrency("regal")
+			CommonClick(craft_item_x,craft_item_y)
+			Sleep,wait_time
+		}
+		else
+		{
+			useCurrency("alter")
+			CommonClick(craft_item_x,craft_item_y)
+			Sleep,wait_time
+		}
+	}
+	else if(attribute_count=1)
+	{
+		if(match_count=1)
+		{
+			useCurrency("aug")
+			CommonClick(craft_item_x,craft_item_y)
+			Sleep,wait_time
+		}
+		else
+		{
+			useCurrency("alter")
+			CommonClick(craft_item_x,craft_item_y)
+			Sleep,wait_time
+		}
+	}
+	else if(attribute_count=0)
+	{
+		useCurrency("trans")
+		CommonClick(craft_item_x,craft_item_y)
+		Sleep,wait_time
+	}
+	return false
+}
+
+
+autoChaosVendorMain()
+{
+	global
+	array_itemAxis := Object()
+	Loop 8
+	{
+		array_temp := [-1,-1]
+		array_itemAxis[A_Index+itemType_Ring-1] := (array_temp)
+	}
+	Loop 5
+	{
+		array_temp := [-1,-1]
+		array_itemAxis[A_Index+itemType_GloveBak-1] := (array_temp)
+	}
+	array_bak_flag := Object()
+	local i := 0
+	while (i<5)
+	{
+		openSheet(itemType_GloveBak+i)	;check if bak sheet have item on 1st line
+		if (checkLineNotEmpty(0))
+		{
+			array_bak_flag[i] := 1
+		}
+		else
+		{
+			array_bak_flag[i] := 0
+		}
+		i:=i+1
+	}
+	vendor_fail_flg := 0
+	while(vendor_fail_flg =0)
+	{
+		vendor_fail_flg := autoVendor()
+	}
+	if(autoShutDown=1)
+	{
+		run shutdown -s -t 30
+	}
+}
 
 storeScrolls()
 {
@@ -638,9 +743,13 @@ sortFailItem(tab_index,iCount,periodCount,full_mode_flg)
 	{
 		sortItemIntoTabs(tab_index+6,iCount,periodCount,true)	;chaos recipe,then sort into bak
 	}
+	else if((tab_index>=itemType_GloveBak and tab_index<=itemType_2HBak) or (tab_index>=itemType_Ring and tab_index<=itemType_Belt))
+	{
+		sortItemIntoTabs(itemType_TempTrash1,iCount,periodCount,true)
+	}
 	else if(tab_index=itemType_TempTrashNormal)
 	{
-		sortItemIntoTabs(itemType_TempTrashRare,iCount,periodCount,true)	;chaos recipe,then sort into 28
+		sortItemIntoTabs(itemType_TempTrash1,iCount,periodCount,true)	;chaos recipe,then sort into 28
 	}
 	else if(tab_index=itemType_TempTrashRare)
 	{
@@ -675,7 +784,7 @@ autoVendorTrash(sheet)
 	openSheet(sheet)
 	while(i<24)
 	{
-		flag:=true ;checkLineNotEmpty(i) or checkLineNotEmpty(i+1)
+		flag:=checkLineNotEmpty(i) or checkLineNotEmpty(i+1)
 		if(flag)	;if line i is not all empty,then identifie this line,else end loop
 		{
 			while(j<24)
@@ -804,11 +913,67 @@ autoVendor()
 	result := result + pickEquip(itemType_Ring,1,1,24)
 	result := result + pickEquip(itemType_Amu,1,1,24)
 	result := result + pickEquip(itemType_Belt,1,2,24)
-	result := result + pickEquip(itemType_Glove,2,2,24)
-	result := result + pickEquip(itemType_Helm,2,2,24)
-	result := result + pickEquip(itemType_Shoe,2,2,24)
-	result := result + pickEquip(itemType_Body,3,2,24)
-	result := result + pickEquip(itemType_2H,4,2,24)
+	if (pickEquip(itemType_Glove+array_bak_flag[0]*6,2,2,24)=1)
+	{
+		if(array_bak_flag[0]>0)
+		{
+			array_bak_flag[0] := array_bak_flag[0] - 1
+			result := result + pickEquip(itemType_Glove+array_bak_flag[0]*6,2,2,24)
+		}
+		else
+		{
+			return 1
+		}
+	}
+	
+	if (pickEquip(itemType_Helm+array_bak_flag[1]*6,2,2,24)=1)
+	{
+		if(array_bak_flag[1]>0)
+		{
+			array_bak_flag[1] := array_bak_flag[1] - 1
+			result := result + pickEquip(itemType_Helm+array_bak_flag[1]*6,2,2,24)
+		}
+		else
+		{
+			return 1
+		}
+	}
+	if (pickEquip(itemType_Shoe+array_bak_flag[2]*6,2,2,24)=1)
+	{
+		if(array_bak_flag[2]>0)
+		{
+			array_bak_flag[2] := array_bak_flag[2] - 1
+			result := result + pickEquip(itemType_Helm+array_bak_flag[2]*6,2,2,24)
+		}
+		else
+		{
+			return 1
+		}
+	}
+	if (pickEquip(itemType_Body+array_bak_flag[3]*6,3,2,24)=1)
+	{
+		if(array_bak_flag[3]>0)
+		{
+			array_bak_flag[3] := array_bak_flag[3] - 1
+			result := result + pickEquip(itemType_Body+array_bak_flag[3]*6,3,2,24)
+		}
+		else
+		{
+			return 1
+		}
+	}
+	if (pickEquip(itemType_2H+array_bak_flag[4]*6,4,2,24)=1)
+	{
+		if(array_bak_flag[4]>0)
+		{
+			array_bak_flag[4] := array_bak_flag[4] - 1
+			result := result + pickEquip(itemType_2H+array_bak_flag[4]*6,4,2,24)
+		}
+		else
+		{
+			return 1
+		}
+	}
 	if(result > 0)	;some type of items not exist
 	{
 		return result
@@ -838,10 +1003,15 @@ pickEquip(page,hh,ww,div)
 	openSheet(page)
 	local y_repeat := div / hh
 	local x_repeat := div / ww
-	if(hh=1 and ww=1)	;ring and amulet, normal pick order
+	if(hh=1)	;ring and amulet and belt, normal pick order
 	{
 		i:=array_itemAxis[page][1]
 		j:=array_itemAxis[page][2]
+		if(i=-1 and j=-1)
+		{
+			i:=0
+			j:=0
+		}
 		flag := true	
 		while(flag)
 		{
@@ -874,7 +1044,7 @@ pickEquip(page,hh,ww,div)
 	{
 		i:=array_itemAxis[page][1]
 		j:=array_itemAxis[page][2]
-		if(i=0 and j=0)
+		if(i=-1 and j=-1)
 		{
 			i:= x_repeat - 1
 			j:= y_repeat - 1
@@ -897,7 +1067,7 @@ pickEquip(page,hh,ww,div)
 					j:=y_repeat -1 
 					i:=i-1
 				}
-				if(i<=0 and j<=0)
+				if(i<0 and j=y_repeat-1 )
 				{
 					;MsgBox ¸ÃÒ³ÎïÆ·²»×ã£¬Í£Ö¹Ñ­»·
 					flag:=false
@@ -907,7 +1077,6 @@ pickEquip(page,hh,ww,div)
 			}
 		}
 	}
-	
 	array_itemAxis[page][1] := i
 	array_itemAxis[page][2] := j
 	return pe_result
