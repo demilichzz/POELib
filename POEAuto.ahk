@@ -33,7 +33,7 @@ Return
 ~^Numpad2::		;auto sort rare equip
 {
 	POEConstantLib_constantDefine()
-	sort_list := [4,5,6,7]
+	sort_list := [4,5,6,7,8]
 	for index, element in sort_list
 	{
 		autoSort(element)
@@ -45,7 +45,7 @@ Return
 		if(true)
 		{
 			POEConstantLib_constantDefine()
-			vendor_sheet_list := [itemType_TempTrashNormal,itemType_TempTrash1,itemType_UniqueTemp3] ;vendor list
+			vendor_sheet_list := [itemType_TempTrashNormal,itemType_TempTrash1,itemType_TempTrash2] ;vendor list
 			for index, element in vendor_sheet_list
 			{
 				autoVendorTrash(element)
@@ -54,6 +54,22 @@ Return
 		if(true)
 		{
 			autoChaosVendorMain()
+		}
+		if(false)
+		{
+			craft_list := Object()
+			Loop,4
+			{
+				craft_list.push(Object())
+			}
+			craft_list[1]:=["+# to maximum Energy Shield",26]
+			craft_list[2]:=["+#% to Global Critical Strike Multiplier",9]
+			craft_list[3]:=["+# to Intelligence",15]
+			craft_list[4]:=["#% increased Movement Speed if you've Killed Recently",4]
+			match_min_attrib_magic := 1
+			match_min_attrib_rare := 1
+			match_mode := "jewel"
+			autoCraftMain(itemType_CraftBase,craft_list,match_min_attrib_magic,match_min_attrib_rare,match_mode)
 		}
 	}
 	endExecute()
@@ -74,7 +90,7 @@ Return
 	CtrlMoveItemByGrid(0,4)
 	CtrlMoveItemByGrid(1,4)	;store scrolls
 	CtrlMoveItemByGrid(2,4)
-	vendor_sheet_list := [itemType_TempTrashNormal,itemType_TempTrash1] ;vendor list
+	vendor_sheet_list := [itemType_UniqueTemp2,itemType_UniqueTemp3] ;vendor list
 	for index, element in vendor_sheet_list
 	{
 		autoVendorTrash(element)
@@ -95,10 +111,31 @@ Return
 {
 	POEConstantLib_constantDefine()
 	craft_list := Object()
-	craft_list[1] := "1 Added Passive Skill is Purposeful Harbinger"
-	craft_list[2] := "1 Added Passive Skill is Replenishing Presence"
-	craft_list[3] := "1 Added Passive Skill is a Jewel Socket"
-	autoCraft(craft_list)
+	Loop,4
+	{
+		craft_list.push(Object())
+	}
+	craft_list[1] := ["# Added Passive Skill is Purposeful Harbinger",1]
+	craft_list[2] := ["# Added Passive Skill is Heraldry",1]
+	craft_list[3] := ["# Added Passive Skill is Endbringer",1]
+	craft_list[4] := ["# Added Passive Skill is a Jewel Socket",1]
+	;~ craft_list[1]:=["+# to maximum Energy Shield",26]
+	;~ craft_list[2]:=["+#% to Global Critical Strike Multiplier",9]
+	;~ craft_list[3]:=["+# to Intelligence",15]
+	;~ craft_list[4]:=["#% increased Movement Speed if you've Killed Recently",4]
+	
+	;~ craft_list[1]:=["#% increased maximum Energy Shield",6]
+	;~ craft_list[2]:=["+#% to Critical Strike Multiplier with Cold Skills",15]
+	;~ craft_list[3]:=["+#% to Critical Strike Multiplier with Lightning Skills",15]
+	;~ craft_list[4]:=["+#% to Global Critical Strike Multiplier",9]
+	;~ craft_list[5]:=["+#% to Critical Strike Multiplier for Spells",12]
+	;~ craft_list[6]:=["+#% to Critical Strike Multiplier with Elemental Skills",12]
+	;~ craft_list[7]:=["+# to Intelligence",15]
+	match_min_attrib_magic := 2
+	match_min_attrib_rare := 3
+	match_mode := "jewel"
+	;autoCraftMain(87,craft_list,match_min_attrib_magic,match_min_attrib_rare,match_mode)
+	autoCraftItem(craft_list,match_min_attrib_magic,match_min_attrib_rare,match_mode)
 }
 Return
 
@@ -113,11 +150,59 @@ Return
 }
 Return
 
-autoCraft(craft_list)
+autoCraftMain(itemSheet,craft_list,match_min_attrib_magic,match_min_attrib_rare,match_mode) ;auto craft all items in target sheet
+{
+	global
+	local flag := true
+	local x := 0
+	local y := 0
+	local i := 0
+	local j := 0
+	local x_repeat := 12
+	local y_repeat := 12
+	local div := 12
+	local moveSuccess := 0
+	while(flag)
+	{
+		openSheet(itemSheet)
+		x := stash_start_x + (i * 632 // div)
+		y := stash_start_y + (j * 632 // div)
+		moveSuccess := CtrlMoveItem(x,y)	;pull
+		if(moveSuccess=1)
+		{
+			moveSuccess := 0
+			openSheet(0)
+			CtrlMoveItemByGrid(0,0)
+			autoCraftItem(craft_list,match_min_attrib_magic,match_min_attrib_rare,match_mode)
+			moveSuccess := CtrlMoveItem(craft_item_x,craft_item_y)
+			if(moveSuccess=1)
+			{
+				openSheet(itemSheet)
+				CtrlMoveItemByGrid(0,0)
+			}
+		}
+		else if(moveSuccess=0)
+		{
+			Break
+		}
+		j:=j+1
+		if (j>=y_repeat)
+		{
+			j:=0
+			i:=i+1
+			if (i>=x_repeat)
+			{
+				;MsgBox 该页物品不足，停止循环
+				flag:=false
+			}
+		}
+	}
+}
+
+autoCraftItem(craft_list,match_min_attrib_magic,match_min_attrib_rare,match_mode)
 {
 	global
 	MouseMove craft_item_x,craft_item_y
-	local value_num:=0
 	local result_list := Object()
 	local success_flg := false
 	while(not success_flg)
@@ -127,19 +212,19 @@ autoCraft(craft_list)
 		Send ^c
 		Sleep,200
 		result_list := analyzeItemExMatch(clipboard,craft_list)
-		success_flg := autoCraftByAlt(result_list)
+		success_flg := autoCraftByAlt(result_list,match_min_attrib_magic,match_min_attrib_rare)
 	}
 }
 
-autoCraftByAlt(result_list)
+autoCraftByAlt(result_list,match_min_attrib_magic,match_min_attrib_rare)
 {
 	global
 	local attribute_count := result_list[1]
 	local match_count := result_list[2]
 	local wait_time := 200
-	if(attribute_count=3)
+	if(attribute_count>=3)
 	{
-		if(match_count=3)
+		if(match_count>=match_min_attrib_rare)
 		{
 			return true
 		}
@@ -152,7 +237,7 @@ autoCraftByAlt(result_list)
 	}
 	else if(attribute_count=2)
 	{
-		if(match_count=2)
+		if(match_count>=match_min_attrib_magic)
 		{
 			useCurrency("regal")
 			CommonClick(craft_item_x,craft_item_y)
@@ -167,7 +252,7 @@ autoCraftByAlt(result_list)
 	}
 	else if(attribute_count=1)
 	{
-		if(match_count=1)
+		if(match_count=1 or match_min_attrib_magic=1)
 		{
 			useCurrency("aug")
 			CommonClick(craft_item_x,craft_item_y)
@@ -766,6 +851,10 @@ sortFailItem(tab_index,iCount,periodCount,full_mode_flg)
 	else if(tab_index>=itemType_UniqueTemp1 and tab_index<=itemType_UniqueTemp2)
 	{
 		sortItemIntoTabs(tab_index+1,iCount,periodCount,true)	;chaos recipe,then sort into 28
+	}
+	else if(tab_index=itemType_Valuable)
+	{
+		sortItemIntoTabs(itemType_Temp,iCount,periodCount,true)	;not equip,then sort into 4
 	}
 	else
 	{

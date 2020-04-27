@@ -13,6 +13,7 @@ autoEstate:=0
 autoWstate:=0
 autoTstate:=0
 autoSstate:=0
+autoAstate:=0
 #Include D:\Program Files\AutoHotkey\script\POELib\autoMacroLib.ahk
 
 
@@ -69,6 +70,7 @@ Return
 	else{
 	}
 }
+Return
 
 !^P::
 {
@@ -78,7 +80,22 @@ Return
 	else{
 	}
 }
+Return
 
+F4::
+{
+	autoAstate := 1- autoAstate
+	if (autoAstate = 1)
+	{
+		;MsgBox a
+		Send {a down}
+	}
+	else
+	{
+		Send {a up}
+	}
+}
+Return
 
 #If (autoPotion=1) and WinActive("Path of Exile")
 LWin::return
@@ -118,25 +135,6 @@ Return
 	Return
 }
 Return
-
-;~ *$a::
-;~ {
-	;~ Send {a Down} 
-	;~ Loop
-	;~ {
-		;~ Sleep,10
-		;~ GetKeyState,Astate,A,P
-		;~ if Astate = U
-		;~ {
-			;~ Send {a Up}
-			;~ Sleep,30
-			;~ Send {d}		;detonate mine
-			;~ Break
-		;~ }
-	;~ }
-	;~ Return
-;~ }
-;~ Return
 
 !^Y::
 {

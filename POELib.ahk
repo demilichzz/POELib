@@ -36,6 +36,10 @@ openSheet(index)	;open the index start by 0
 	{
 		target_page := 2
 	}
+	else if(index >90 and index <= 120)
+	{
+		target_page := 3
+	}
 	ColorClickMulti(tablist_x,tablist_y,currency_x,currency_y,currency_color_list,true,100)	;open sheet scroll
 	if(current_page <> target_page or index=0)
 	{
@@ -106,30 +110,50 @@ ColorClickMulti(x,y,xtar,ytar,cclist,mode,clickdelay)
 analyzeItemExMatch(cp,craft_list)
 {
 	global
+	local match_mode := "jewel"
 	local result_list := Object()
-	local base_attrib_list := Object()
-	base_attrib_list[1] := "1 Added Passive Skill is "
-	base_attrib_list[2] := "Added Small Passive Skills also grant:"
-	base_attrib_list[3] := "2 Added Passive Skills are Jewel Sockets"
-	base_attrib_list[4] := "Added Small Passive Skills have 25% increased Effect"
+
 	local attribute_count := 0
 	local matched_count := 0
 	local attribute_str := ""
-	Loop, parse, clipboard, `n, `r
+	local ilvl_index := 99999
+	local attribute_start_index := 99999
+	local attribute_end_index := 99999
+	if(match_mode="jewel")
 	{
-		attribute_str := A_LoopField
-		Loop % base_attrib_list.Length()
+		Loop, parse, clipboard, `n, `r
 		{
-			if(InStr(attribute_str,base_attrib_list[A_Index])>0)
+			attribute_str := A_LoopField
+			;~ if(getModValue(attribute_str,"Item Level: #")>0)
+			;~ {
+				;~ ilvl_index:=A_Index
+			;~ }
+			if(getModValue(attribute_str,"Adds # Passive Skills (enchant)")>0)
 			{
-				attribute_count := attribute_count+1
+				ilvl_index:=A_Index
 			}
-		}
-		Loop % craft_list.Length()
-		{
-			if(InStr(attribute_str,craft_list[A_Index])>0)
+			if(InStr(attribute_str,"--------")>0 and ilvl_index<>99999)
 			{
-				matched_count := matched_count+1
+				attribute_start_index := A_Index
+			}
+				
+			if(A_Index>attribute_start_index and A_Index<attribute_end_index)	;next of ilvl and ----, then attributes
+			{
+				if((InStr(attribute_str,"--------")>0 or InStr(attribute_str,"Place into an ")>0)and attribute_end_index=99999)
+				{
+					attribute_end_index := A_Index
+				}
+				else
+				{
+					attribute_count := attribute_count + 1
+					Loop % craft_list.Length()
+					{
+						if(getModValue(attribute_str,craft_list[A_Index][1])>=craft_list[A_Index][2])
+						{
+							matched_count := matched_count+1
+						}
+					}
+				}
 			}
 		}
 	}
@@ -392,7 +416,7 @@ sortItem()		;sort single item by clipboard
 				}
 				else if(currency_flg=false and Instr(A_LoopField, "Incubator")>0)
 				{
-					return itemType_Shard
+					return itemType_Sample
 				}
 				else if(currency_flg and Instr(A_LoopField, "Oil")>0)
 				{
@@ -470,8 +494,9 @@ getEquipBaseType(x,y)	;get item basetype by clipboard
 	clipboard := 
 	Send ^c
 	item_exist_temp := not CheckColorRGB(x-3,y-3,0x101010)
-	basetype := ""
-	rare_flg := false
+	local basetype := ""
+	local type_index := 0
+	
 	if(item_exist_temp)
 	{
 		ClipWait, 2
@@ -484,9 +509,16 @@ getEquipBaseType(x,y)	;get item basetype by clipboard
 	{
 		if(A_Index=1 and A_LoopField = "Rarity: Rare")
 		{
-			rare_flg := true
+			if(Instr(clipboard,"Unidentified")>0)
+			{
+				type_index := 2
+			}
+			else
+			{
+				type_index := 3
+			}
 		}
-		if (A_Index=3 and rare_flg)
+		if (A_Index=type_index)
 		{
 			basetype := A_LoopField
 			break

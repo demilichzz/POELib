@@ -78,7 +78,7 @@ POEConstantLib_constantDefine()
 	
 	itemType_Jewel:=17
 	itemType_ClusterJewel:=18
-	itemType_SpecialBase:=19
+	itemType_SpecialBase:=68
 	itemType_TempTrashNormal:=20
 	itemType_TempTrashRare:=21
 	itemType_TempTrash1:=22
@@ -94,7 +94,8 @@ POEConstantLib_constantDefine()
 	itemType_Enchanted:=63
 	itemType_HighQGem:=65
 	itemType_Prophecy:=66
-	itemType_Oil:=67
+	itemType_Oil:=62
+	itemType_CraftBase:=19
 	;
 	
 	;craft
