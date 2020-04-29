@@ -45,7 +45,7 @@ Return
 		if(true)
 		{
 			POEConstantLib_constantDefine()
-			vendor_sheet_list := [itemType_TempTrashNormal,itemType_TempTrash1,itemType_TempTrash2] ;vendor list
+			vendor_sheet_list := [itemType_TempTrashNormal,itemType_TempTrash1,itemType_UniqueTemp3] ;vendor list
 			for index, element in vendor_sheet_list
 			{
 				autoVendorTrash(element)
@@ -55,21 +55,24 @@ Return
 		{
 			autoChaosVendorMain()
 		}
-		if(false)
+		if(true)
 		{
 			craft_list := Object()
-			Loop,4
+			Loop,5
 			{
 				craft_list.push(Object())
 			}
-			craft_list[1]:=["+# to maximum Energy Shield",26]
-			craft_list[2]:=["+#% to Global Critical Strike Multiplier",9]
-			craft_list[3]:=["+# to Intelligence",15]
-			craft_list[4]:=["#% increased Movement Speed if you've Killed Recently",4]
-			match_min_attrib_magic := 1
-			match_min_attrib_rare := 1
+			craft_list[1] := ["# Added Passive Skill is Purposeful Harbinger",1]
+			craft_list[2] := ["# Added Passive Skill is Heraldry",1]
+			craft_list[3] := ["# Added Passive Skill is Endbringer",1]
+			craft_list[4] := ["# Added Passive Skill is a Jewel Socket",1]
+			craft_list[5] := ["# Added Passive Skill is Replenishing Presence",1]
+			match_min_attrib_magic := 2
+			match_min_attrib_rare := 3
 			match_mode := "jewel"
-			autoCraftMain(itemType_CraftBase,craft_list,match_min_attrib_magic,match_min_attrib_rare,match_mode)
+			;autoCraftMain(itemType_CraftBase,craft_list,match_min_attrib_magic,match_min_attrib_rare,match_mode)
+			openSheet(0)
+			autoCraftItem(craft_list,match_min_attrib_magic,match_min_attrib_rare,match_mode)
 		}
 	}
 	endExecute()
@@ -111,7 +114,7 @@ Return
 {
 	POEConstantLib_constantDefine()
 	craft_list := Object()
-	Loop,4
+	Loop,5
 	{
 		craft_list.push(Object())
 	}
@@ -119,6 +122,7 @@ Return
 	craft_list[2] := ["# Added Passive Skill is Heraldry",1]
 	craft_list[3] := ["# Added Passive Skill is Endbringer",1]
 	craft_list[4] := ["# Added Passive Skill is a Jewel Socket",1]
+	craft_list[5] := ["# Added Passive Skill is Replenishing Presence",1]
 	;~ craft_list[1]:=["+# to maximum Energy Shield",26]
 	;~ craft_list[2]:=["+#% to Global Critical Strike Multiplier",9]
 	;~ craft_list[3]:=["+# to Intelligence",15]
@@ -309,9 +313,9 @@ autoChaosVendorMain()
 	{
 		vendor_fail_flg := autoVendor()
 	}
-	if(autoShutDown=1)
+	if(vendor_fail_flg := 1)
 	{
-		run shutdown -s -t 30
+		sortItemIntoTabs(itemType_Temp,9,60,true)
 	}
 }
 
