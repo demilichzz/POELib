@@ -45,7 +45,7 @@ Return
 		if(true)
 		{
 			POEConstantLib_constantDefine()
-			vendor_sheet_list := [itemType_TempTrashNormal,itemType_TempTrash1,itemType_UniqueTemp3] ;vendor list
+			vendor_sheet_list := [itemType_TempTrashNormal,itemType_TempTrash1] ;vendor list
 			for index, element in vendor_sheet_list
 			{
 				autoVendorTrash(element)
@@ -55,7 +55,7 @@ Return
 		{
 			autoChaosVendorMain()
 		}
-		if(true)
+		if(false)
 		{
 			craft_list := Object()
 			Loop,5
@@ -93,7 +93,7 @@ Return
 	CtrlMoveItemByGrid(0,4)
 	CtrlMoveItemByGrid(1,4)	;store scrolls
 	CtrlMoveItemByGrid(2,4)
-	vendor_sheet_list := [itemType_UniqueTemp2,itemType_UniqueTemp3] ;vendor list
+	vendor_sheet_list := [itemType_TempTrashNormal,itemType_TempTrash1] ;vendor list
 	for index, element in vendor_sheet_list
 	{
 		autoVendorTrash(element)
@@ -390,7 +390,7 @@ autoSort(sheet)		;auto sort main
 					;~ item_type := item_type - 50
 					;~ sheet_index := item_type	;set target sheet = item_type
 				;~ }
-				if((item_type = itemType_Valuable or item_type = itemType_UniqueTemp1 or item_type = itemType_UniqueCollect or item_type = itemType_SpecialBase) and rare_identify_flg=1)
+				if((item_type = itemType_Valuable or item_type = itemType_UniqueTemp1 or item_type = itemType_UniqueCollect or item_type = itemType_SpecialBase or item_type = itemType_TempTrashRare) and rare_identify_flg=1)
 				{
 					CommonClick_left()		;unique&misc equip identifie	
 					Sleep,10
