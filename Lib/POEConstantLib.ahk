@@ -25,8 +25,8 @@ POEConstantLib_constantDefine()
 	tab_disp_y := 22
 	current_page := 0
 	scroll_start_x := 881
-	scroll_start_y := 227
-	scroll_disp := 170
+	scroll_start_y := 217
+	scroll_disp := 130
 	scroll_color := 0x000000
 	;for auto vendor
 	chest_x := 1018
@@ -78,7 +78,7 @@ POEConstantLib_constantDefine()
 	
 	itemType_Jewel:=17
 	itemType_ClusterJewel:=18
-	itemType_SpecialBase:=68
+	itemType_SpecialBase:=64
 	itemType_TempTrashNormal:=20
 	itemType_TempTrashRare:=21
 	itemType_TempTrash1:=22
@@ -90,12 +90,15 @@ POEConstantLib_constantDefine()
 	itemType_UniqueTemp3:=28
 	itemType_Veiled:=29
 	itemType_UniqueCollect:=30
-	itemType_Sample:=61
-	itemType_Enchanted:=63
-	itemType_HighQGem:=65
-	itemType_Prophecy:=66
-	itemType_Oil:=62
+	itemType_Sample:=57
+	itemType_Oil:=58
+	itemType_Enchanted:=59
+	itemType_HighQGem:=61
+	itemType_Prophecy:=62
 	itemType_CraftBase:=19
+	
+	itemType_ValuableJewel:=78
+	itemType_CobaltJewel:=80
 	;
 	
 	;craft
@@ -107,6 +110,12 @@ POEConstantLib_constantDefine()
 	currency_list["scour"] := [160,490,0x8F9193]
 	craft_item_x := 332
 	craft_item_y := 475
+	craft_magic_list := Object()
+	craft_rare_list := Object()
+	craft_ensure_list := Object()
+	match_min_attrib_magic := 0
+	match_min_attrib_rare := 0
+	match_mode := 0
 	;
 	
 	;for analyzer
@@ -173,6 +182,80 @@ POEConstantLib_constantDefine()
 	weight_list[28] := 0.75	;Strength and Intelligence
 	weight_list[29] := 0.75	;Strength and Dexterity
 	weight_list[30] := 0.5	;Dexterity and Intelligence
+	
+	mod_group_jewel := Object()
+	mod_group_jewel_ES:=1
+	mod_group_jewel_BASE_DEF:=2
+	mod_group_jewel_MANA:=3
+	mod_group_jewel_SPELL_DAMAGE:=4
+	mod_group_jewel_RESIST:=5
+	mod_group_jewel_CHAOS_DAMAGE:=6
+	mod_group_jewel_BASE_ATTRIB:=7
+	mod_group_jewel_1H_ATK:=8
+	mod_group_jewel_2H_ATK:=9
+	mod_group_jewel_COMMON_ATK:=10
+	mod_group_jewel_MISC:=11
+	mod_group_jewel[mod_group_jewel_ES]:=Object()
+	mod_group_jewel[mod_group_jewel_BASE_DEF]:=Object()
+	mod_group_jewel[mod_group_jewel_MANA]:=Object()
+	mod_group_jewel[mod_group_jewel_SPELL_DAMAGE]:=Object()
+	mod_group_jewel[mod_group_jewel_RESIST]:=Object()
+	mod_group_jewel[mod_group_jewel_CHAOS_DAMAGE]:=Object()
+	mod_group_jewel[mod_group_jewel_BASE_ATTRIB]:=Object()
+	mod_group_jewel[mod_group_jewel_1H_ATK]:=Object()
+	mod_group_jewel[mod_group_jewel_2H_ATK]:=Object()
+	mod_group_jewel[mod_group_jewel_COMMON_ATK]:=Object()
+	mod_group_jewel[mod_group_jewel_MISC]:=Object()
+	;------ENERGY SHIELD------
+	mod_group_jewel[mod_group_jewel_ES][1]:=["#% increased maximum Energy Shield",6]
+	mod_group_jewel[mod_group_jewel_ES][2]:=["# to maximum Energy Shield",26]
+	;------BASE DEF--------
+	mod_group_jewel[mod_group_jewel_BASE_DEF][1]:=["#% increased maximum Life",5]
+	mod_group_jewel[mod_group_jewel_BASE_DEF][2]:=["#% increased maximum Energy Shield",6]
+	mod_group_jewel[mod_group_jewel_BASE_DEF][3]:=["# to maximum Energy Shield",26]
+	mod_group_jewel[mod_group_jewel_BASE_DEF][4]:=["# to maximum Life",26]
+	;------MANA-----------
+	mod_group_jewel[mod_group_jewel_MANA][1]:=["#% increased maximum Mana",8]
+	mod_group_jewel[mod_group_jewel_MANA][2]:=["# to maximum Mana",26]
+	;------SPELL DAMAGE--------
+	mod_group_jewel[mod_group_jewel_SPELL_DAMAGE][1]:=["#% to Critical Strike Multiplier with Cold Skills",15]
+	mod_group_jewel[mod_group_jewel_SPELL_DAMAGE][2]:=["#% to Critical Strike Multiplier with Lightning Skills",15]
+	mod_group_jewel[mod_group_jewel_SPELL_DAMAGE][3]:=["#% to Critical Strike Multiplier for Spells",12]
+	mod_group_jewel[mod_group_jewel_SPELL_DAMAGE][4]:=["#% to Critical Strike Multiplier with Elemental Skills",12]
+	;------RESIST-------------
+	mod_group_jewel[mod_group_jewel_RESIST][1]:=["#% to Fire and Cold Resistances",10]
+	mod_group_jewel[mod_group_jewel_RESIST][2]:=["#% to Fire and Lightning Resistances",10]
+	mod_group_jewel[mod_group_jewel_RESIST][3]:=["#% to Cold and Lightning Resistances",10]
+	mod_group_jewel[mod_group_jewel_RESIST][4]:=["#% to all Elemental Resistances",8]
+	mod_group_jewel[mod_group_jewel_RESIST][5]:=["#% to Chaos Resistance",8]
+	;------CHAOS--------------
+	mod_group_jewel[mod_group_jewel_CHAOS_DAMAGE][1]:=["#% to Chaos Damage over Time Multiplier",3]
+	mod_group_jewel[mod_group_jewel_CHAOS_DAMAGE][2]:=["#% increased Chaos Damage",9]
+	mod_group_jewel[mod_group_jewel_CHAOS_DAMAGE][3]:=["#% increased Damage over Time",10]
+	;------BASE ATTRIB--------
+	mod_group_jewel[mod_group_jewel_BASE_ATTRIB][1]:=["# to Strength and Dexterity",8]
+	mod_group_jewel[mod_group_jewel_BASE_ATTRIB][2]:=["# to Strength and Intelligence",8]
+	mod_group_jewel[mod_group_jewel_BASE_ATTRIB][3]:=["# to Dexterity and Intelligence",8]
+	mod_group_jewel[mod_group_jewel_BASE_ATTRIB][4]:=["# to all Attributes",6]
+	;------1H ATK------
+	mod_group_jewel[mod_group_jewel_1H_ATK][1]:=["#% increased Attack Speed with Swords",6]
+	mod_group_jewel[mod_group_jewel_1H_ATK][2]:=["#% increased Attack Speed with One Handed Melee Weapons",6]
+	mod_group_jewel[mod_group_jewel_1H_ATK][3]:=["#% increased Attack Speed while Dual Wielding",6]
+	mod_group_jewel[mod_group_jewel_1H_ATK][4]:=["#% increased Attack Speed while holding a Shield",6]
+	mod_group_jewel[mod_group_jewel_1H_ATK][5]:=["#% to Critical Strike Multiplier with One Handed Melee Weapons",15]
+	mod_group_jewel[mod_group_jewel_1H_ATK][6]:=["#% to Critical Strike Multiplier while Dual Wielding",15]
+	;------2H ATK-----
+	mod_group_jewel[mod_group_jewel_2H_ATK][1]:=["#% increased Attack Speed with Two Handed Melee Weapons",6]
+	mod_group_jewel[mod_group_jewel_2H_ATK][2]:=["#% to Critical Strike Multiplier with Two Handed Melee Weapons",15]
+	;------COMMON ATK------
+	mod_group_jewel[mod_group_jewel_COMMON_ATK][1]:=["#% to Global Critical Strike Multiplier",9]
+	mod_group_jewel[mod_group_jewel_COMMON_ATK][2]:=["#% increased Attack Speed if you've dealt a Critical Strike Recently",6]
+	;------MISC-------
+	mod_group_jewel[mod_group_jewel_MISC][1]:=["# Life gained for each Enemy hit by your Attacks",2]
+	mod_group_jewel[mod_group_jewel_MISC][2]:=["# Energy Shield gained for each Enemy hit by your Attacks",2]
+	mod_group_jewel[mod_group_jewel_MISC][3]:=["#% increased Movement Speed if you've Killed Recently",4]
+	mod_group_jewel[mod_group_jewel_MISC][4]:=["#% chance to Gain Unholy Might for 4 seconds on Melee Kill",4]
+	mod_group_jewel[mod_group_jewel_MISC][5]:=["#% chance to gain Phasing for # seconds on Kill",6]
 	;constant define end
 	;
 }

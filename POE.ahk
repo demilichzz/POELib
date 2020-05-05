@@ -1,5 +1,4 @@
 #Persistent
-#SingleInstance force
 #InstallKeybdHook    ;安装键盘钩子，主要用来判断键盘是否处于按下状态，如果是就一直发送键盘消息！如果报毒的话就是这里报毒，加密下这一句代码就OK了
 #MaxHotkeysPerInterval 240
 #MaxThreadsPerHotkey 1
@@ -8,6 +7,7 @@ SetKeyDelay, 0, 3
 SetStoreCapslockMode, off
 mousestate:=0
 playstate:=0
+autoTriggerState:=0
 autoPotion:=1
 autoEstate:=0
 autoWstate:=0
@@ -97,6 +97,63 @@ F4::
 }
 Return
 
+F5::
+{
+	autoTriggerState:= 1 - autoTriggerState
+	cc_w := false
+	cc_e := false
+	endur_count := -1
+	if(autoTriggerState=1)
+	{
+		SetTimer, autoTriggerSpell, 200
+	}
+	else
+	{
+		SetTimer, autoTriggerSpell, off
+	}
+	return
+	
+}
+Return
+
+autoTriggerSpell:
+if(WinActive("Path of Exile"))
+{
+	cc_w := CheckColorRGB(1487,1030,0x642A11)	;enduring cry
+	cc_e := CheckColorRGB(1544,1028,0xD3A833)	;rallying cry
+	if(cc_e and endur_count=-1)
+	{
+		Send {e down}
+		Sleep,20
+		Send {e up}
+		Sleep,100
+		cc_e := CheckColorRGB(1544,1028,0xD8AD38)
+		if(cc_e = false)
+		{
+			;MsgBox test
+			endur_count:=0
+		}
+	}
+	else if(cc_w and endur_count>=0)
+	{
+		Send {w down}
+		Sleep,20
+		Send {w up}
+		Sleep,100
+		cc_w := CheckColorRGB(1487,1030,0x642A11)
+		if(cc_w = false)
+		{
+			endur_count:=endur_count+1
+			;MsgBox %endur_count%
+			if(endur_count>5)
+			{
+				endur_count=-1
+			}
+		}
+	}
+}
+return
+
 #If (autoPotion=1) and WinActive("Path of Exile")
 LWin::return
 ~2::
@@ -105,6 +162,7 @@ LWin::return
 	Send {4}	
 	Send {5}
 	Send {S}
+	Send {T}
 }
 Return
 
@@ -133,55 +191,6 @@ Return
 		Return
 	}
 	Return
-}
-Return
-
-!^Y::
-{
-	cc_w := false
-	cc_e := false
-	while(mousestate=1)
-	{
-		Sleep,500
-		if WinActive("Path of Exile")
-		{
-			if(autoEstate=1)
-			{
-				cc_w := CheckColor(1493,1030,0xD1F13F)	;plague bearer check
-				cc_e := CheckColor(1544,1036,0x171C02)	;withering step check
-			}
-			while(cc_e)
-			{
-				Send {e down}
-				Sleep,20
-				Send {e up}
-				Sleep,50
-				cc_e := CheckColor(1544,1036,0x171C02)
-			}
-			while(cc_w)
-			{
-				Send {w down}
-				Sleep,20
-				Send {w up}
-				Sleep,50
-				cc_w := CheckColor(1493,1030,0xD1F13F)
-			}
-			if(autoTstate=1)
-			{
-				Send {t down}
-				Sleep,20
-				Send {t up}
-				Sleep,50
-			}
-			if(autoSstate=1)
-			{
-				Send {s down}
-				Sleep,20
-				Send {s up}
-				Sleep,50
-			}
-		}
-	}
 }
 Return
 

@@ -13,10 +13,8 @@ SetStoreCapslockMode, off
 
 ~^Numpad9::		;test
 {
-	;POEConstantLib_constantDefine()
-	;array_equipbase := sortItem()
-	;MsgBox % array_equipbase
-	openVendor()
+	POEConstantLib_constantDefine()
+	itype := sortItem()
 }
 Return
 
@@ -39,6 +37,10 @@ openSheet(index)	;open the index start by 0
 	else if(index >90 and index <= 120)
 	{
 		target_page := 3
+	}
+	else if(index >120 and index <= 150)
+	{
+		target_page := 4
 	}
 	ColorClickMulti(tablist_x,tablist_y,currency_x,currency_y,currency_color_list,true,100)	;open sheet scroll
 	if(current_page <> target_page or index=0)
@@ -106,37 +108,149 @@ ColorClickMulti(x,y,xtar,ytar,cclist,mode,clickdelay)
 	}	
 }
 
-;analyze item match values
-analyzeItemExMatch(cp,craft_list)
+setCraftList(craft_type)
 {
 	global
-	local match_mode := "jewel"
-	local result_list := Object()
+	craft_magic_list := Object()
+	craft_rare_list := Object()
+	craft_ensure_list := Object()
+	match_mode := craft_type
+	if(craft_type="warcry cluster")
+	{
+		Loop,3
+		{
+			craft_magic_list.push(Object())
+		}
+		craft_magic_list[1] := ["# Added Passive Skill is a Jewel Socket",1]
+		craft_magic_list[2] := ["# Added Passive Skill is Mob Mentality",1]
+		craft_magic_list[3] := ["# Added Passive Skill is Warning Call",1]
+		Loop,5
+		{
+			craft_rare_list.push(Object())
+		}
+		craft_rare_list[1] := ["# Added Passive Skill is a Jewel Socket",1]
+		craft_rare_list[2] := ["# Added Passive Skill is Mob Mentality",1]
+		craft_rare_list[3] := ["# Added Passive Skill is Cry Wolf",1]
+		craft_rare_list[4] := ["# Added Passive Skill is Warning Call",1]
+		craft_rare_list[5] := ["# Added Passive Skill is Haunting Shout",1]
+		match_min_attrib_magic := 2
+		match_min_attrib_rare := 3
+		Loop,1
+		{
+			craft_ensure_list.push(Object())
+		}
+		craft_ensure_list[1] := ["# Added Passive Skill is Mob Mentality",1]
+	}
+	else if(craft_type="herald cluster")
+	{
+		Loop,4
+		{
+			craft_magic_list.push(Object())
+		}
+		craft_magic_list[1] := ["# Added Passive Skill is Purposeful Harbinger",1]
+		craft_magic_list[2] := ["# Added Passive Skill is Heraldry",1]
+		craft_magic_list[3] := ["# Added Passive Skill is a Jewel Socket",1]
+		craft_magic_list[4] := ["# Added Passive Skill is Replenishing Presence",1]
+		Loop,5
+		{
+			craft_rare_list.push(Object())
+		}
+		craft_rare_list[1] := ["# Added Passive Skill is Purposeful Harbinger",1]
+		craft_rare_list[2] := ["# Added Passive Skill is Heraldry",1]
+		craft_rare_list[3] := ["# Added Passive Skill is Endbringer",1]
+		craft_rare_list[4] := ["# Added Passive Skill is a Jewel Socket",1]
+		craft_rare_list[5] := ["# Added Passive Skill is Replenishing Presence",1]
+		Loop,1
+		{
+			craft_ensure_list.push(Object())
+		}
+		craft_ensure_list[1] := ["# Added Passive Skill is Purposeful Harbinger",1]
+		match_min_attrib_magic := 2
+		match_min_attrib_rare := 3
+	}
+	else if(craft_type="cobalt")
+	{
+		Loop,7
+		{
+			craft_magic_list.push(Object())
+		}
+		craft_magic_list[1]:=["+# to maximum Energy Shield",26]
+		craft_magic_list[2]:=["+#% to Global Critical Strike Multiplier",9]
+		craft_magic_list[3]:=["#% increased maximum Energy Shield",6]
+		craft_magic_list[4]:=["+#% to Critical Strike Multiplier with Cold Skills",15]
+		craft_magic_list[5]:=["+#% to Critical Strike Multiplier with Lightning Skills",15]
+		craft_magic_list[6]:=["+#% to Critical Strike Multiplier for Spells",12]
+		craft_magic_list[7]:=["+#% to Critical Strike Multiplier with Elemental Skills",12]
+		match_min_attrib_magic := 1
+		match_min_attrib_rare := 3
+	}
+	else if(craft_type="influence")
+	{
+		Loop,2
+		{
+			craft_magic_list.push(Object())
+		}
+		craft_magic_list[1]:=["You have Tailwind if you have dealt a Critical Strike Recently",0]
+		craft_magic_list[2]:=["% chance to gain Elusive on Critical Strike",5]
+		match_min_attrib_magic := 1
+		match_min_attrib_rare := 0
+	}
+}
 
+;analyze item match values
+analyzeItemExMatch(cp,craft_magic_list,craft_rare_list,craft_ensure_list)
+{
+	global
+	local result_list := Object()
+	local rarity := 0
 	local attribute_count := 0
 	local matched_count := 0
+	local ensure_count := 0
 	local attribute_str := ""
 	local ilvl_index := 99999
 	local attribute_start_index := 99999
 	local attribute_end_index := 99999
-	if(match_mode="jewel")
+	local craft_list := Object()
+	if(true)
 	{
-		Loop, parse, clipboard, `n, `r
+		Loop, parse, cp, `n, `r
 		{
 			attribute_str := A_LoopField
-			;~ if(getModValue(attribute_str,"Item Level: #")>0)
+			if(A_Index=1)	;rarity
+			{
+				if(InStr(attribute_str,"Rarity: Magic")>0)
+				{
+					rarity := 1
+					craft_list:=craft_magic_list
+				}
+				else if(InStr(attribute_str,"Rarity: Rare")>0)
+				{
+					rarity := 2
+					if(match_min_attrib_rare>0)
+					{		
+						craft_list:=craft_rare_list
+					}
+					else
+					{
+						craft_list:=craft_magic_list
+					}
+				}
+			}
+			if(getModValue(attribute_str,"Item Level: #")>0)
+			{
+				if(InStr(match_mode,"cluster">0))
+				{
+					attribute_start_index:=A_Index+4
+				}
+				else
+				{
+					attribute_start_index:=A_Index+1
+				}
+			}
+			;~ if(getModValue(attribute_str,"Adds # Passive Skills (enchant)")>0)
 			;~ {
-				;~ ilvl_index:=A_Index
-			;~ }
-			if(getModValue(attribute_str,"Adds # Passive Skills (enchant)")>0)
-			{
-				ilvl_index:=A_Index
-			}
-			if(InStr(attribute_str,"--------")>0 and ilvl_index<>99999)
-			{
-				attribute_start_index := A_Index
-			}
-				
+				;~ attribute_start_index:=A_Index+1
+			;~ }		
 			if(A_Index>attribute_start_index and A_Index<attribute_end_index)	;next of ilvl and ----, then attributes
 			{
 				if((InStr(attribute_str,"--------")>0 or InStr(attribute_str,"Place into an ")>0)and attribute_end_index=99999)
@@ -148,17 +262,42 @@ analyzeItemExMatch(cp,craft_list)
 					attribute_count := attribute_count + 1
 					Loop % craft_list.Length()
 					{
+						;MsgBox % attribute_str craft_list[A_Index][1] 
+						;xx := getModValue(attribute_str,craft_list[A_Index][1])
+						;MsgBox % xx
 						if(getModValue(attribute_str,craft_list[A_Index][1])>=craft_list[A_Index][2])
 						{
 							matched_count := matched_count+1
 						}
 					}
+					if(rarity=2 and craft_ensure_list.Length()>0)	;if rare, check ensure list
+					{
+						Loop % craft_ensure_list.Length()
+						{
+							if(getModValue(attribute_str,craft_ensure_list[A_Index][1])>=craft_ensure_list[A_Index][2])
+							{
+								ensure_count := ensure_count+1
+							}
+						}
+					}
+					else
+					{
+						ensure_count:=99999
+					}
 				}
 			}
 		}
 	}
-	result_list[1] := attribute_count
-	result_list[2] := matched_count
+	result_list[1] := rarity
+	result_list[2] := attribute_count
+	if(ensure_count<craft_ensure_list.Length())
+	{
+		result_list[3] := 0
+	}
+	else
+	{
+		result_list[3] := matched_count
+	}
 	return result_list
 }
 
@@ -282,6 +421,10 @@ getModValue(modString,regString)
 	FoundPos := RegExMatch(modString, regString, SubPat)
 	if(FoundPos>0)
 	{
+		if(SubPat1="")
+		{
+			SubPat1=0
+		}
 		return SubPat1
 	}
 	else
@@ -296,6 +439,7 @@ sortItem()		;sort single item by clipboard
 	clipboard := 
 	Send ^c
 	MouseGetPos, x, y
+	local item_info := Object()
 	item_exist_temp := not CheckColorRGB(x-3,y-3,0x101010)
 	if(item_exist_temp)		;if color check result is item exist(surely exist) 
 	{
@@ -370,7 +514,7 @@ sortItem()		;sort single item by clipboard
 				{
 					return itemType_M
 				}
-				else if(Instr(A_LoopField,"Essence")>0 or Instr(A_LoopField,"Remnant of Corruption")>0)
+				else if((Instr(A_LoopField,"Essence")>0 or Instr(A_LoopField,"Remnant of Corruption")>0) and currency_flg=true)
 				{
 					return itemType_E
 				}
@@ -392,7 +536,10 @@ sortItem()		;sort single item by clipboard
 				}
 				else if(Instr(A_LoopField,"Jewel")>0 and Instr(A_LoopField,"Jeweller")<=0 and Instr(A_LoopField,"Jewelled")<=0)
 				{
-					return itemType_Jewel
+					item_info := getItemInfoClass(Clipboard)
+					MsgBox % item_info["type_sub"]
+					;IAO := analyzeItemAttributeByInfo(item_info)
+					return analyzeItemAttributeByInfo(getItemInfoClass(Clipboard))
 				}
 				else if(currency_flg and Instr(A_LoopField, "Fossil")>0)
 				{
@@ -410,7 +557,7 @@ sortItem()		;sort single item by clipboard
 				{
 					return itemType_Misc
 				}
-				else if((currency_flg and Instr(A_LoopField, "Shard")>0) or Instr(A_LoopField, "Breachstone")>0 or Instr(clipboard,"Delirium Orb")>0)
+				else if((currency_flg and Instr(A_LoopField, "Shard")>0) or Instr(A_LoopField, "Breachstone")>0 or Instr(clipboard,"Delirium Orb")>0 or A_LoopField="Simulacrum")
 				{
 					return itemType_Shard
 				}
@@ -436,7 +583,13 @@ sortItem()		;sort single item by clipboard
 				else if(Instr(A_LoopField,"Cluster Jewel")>0)
 				{
 					return itemType_ClusterJewel
-				}	
+				}
+				else if(Instr(A_LoopField,"Jewel")>0 and Instr(A_LoopField,"Jeweller")<=0 and Instr(A_LoopField,"Jewelled")<=0)
+				{
+					;item_info := getItemInfoClass(Clipboard)
+					;IAO := analyzeItemAttributeByInfo(item_info)
+					return analyzeItemAttributeByInfo(getItemInfoClass(Clipboard))
+				}
 			}
 			if (A_Index>1 and rare_flg=false)
 			{
@@ -488,6 +641,177 @@ sortItem()		;sort single item by clipboard
 	return 0
 }
 
+getItemInfoClass(cp)
+{
+	global
+	item_info_object := Object()
+	item_info_object["unid_flg"] := false
+	item_info_object["type_base"] := 0
+	item_info_object["type_sub"] := 0
+	item_info_object["rarity"] := 0
+	item_info_object["ilvl"] := 0
+	item_info_object["attribute_str"] := Object()
+	local attribute_str := ""
+	local type_index := 2		;item base type check
+	local ilvl_index := 99999
+	local attribute_start_index := 99999
+	local attribute_end_index := 99999
+	if (Instr(cp,"Unidentified")>0)
+	{
+		item_info_object["unid_flg"] := true
+	}
+	Loop, parse, cp, `n, `r
+	{
+		attribute_str := A_LoopField
+		if(A_Index=1)	;rarity
+		{
+			if(InStr(attribute_str,"Rarity: Magic")>0)
+			{
+				item_info_object["rarity"] := 1
+			}
+			else if(InStr(attribute_str,"Rarity: Rare")>0)
+			{
+				item_info_object["rarity"] := 2
+			}
+			else if(InStr(attribute_str,"Rarity: Normal")>0)
+			{
+				item_info_object["rarity"] := 0
+			}
+			if(item_info_object["rarity"]=2 and item_info_object["unid_flg"] = false)
+			{
+				type_index := 3
+			}
+		}
+		if(A_Index=type_index)
+		{
+			if(Instr(attribute_str,"Jewel")>0 and Instr(attribute_str,"Jeweller")<=0 and Instr(attribute_str,"Jewelled")<=0)
+			{
+				item_info_object["type_base"] := "Jewel"
+				local type_sub_list := Object()
+				type_sub_list.push("Crimson Jewel")
+				type_sub_list.push("Viridian Jewel")
+				type_sub_list.push("Cobalt Jewel")
+				type_sub_list.push("Prismatic Jewel")
+				type_sub_list.push("Murderous Eye Jewel")
+				type_sub_list.push("Searching Eye Jewel")
+				type_sub_list.push("Hypnotic Eye Jewel")
+				type_sub_list.push("Ghastly Eye Jewel")
+				Loop % type_sub_list.Length()
+				{
+					if(InStr(attribute_str,type_sub_list[A_Index])>=0)
+					{
+						item_info_object["type_sub"] := type_sub_list[A_Index]
+						Break
+					}
+				}
+			}
+		}
+		if(getModValue(attribute_str,"Item Level: #")>0)
+		{
+			item_info_object["ilvl"] := getModValue(attribute_str,"Item Level: #")
+			if(item_info_object["type_base"] = "Jewel")
+			{
+				attribute_start_index:=A_Index+1
+			}
+		}
+		;~ if(getModValue(attribute_str,"Adds # Passive Skills (enchant)")>0)
+		;~ {
+			;~ attribute_start_index:=A_Index+1
+		;~ }		
+		if(A_Index>attribute_start_index and A_Index<attribute_end_index)	;next of ilvl and ----, then attributes
+		{
+			if(InStr(attribute_str,"Place into an ")>0 and attribute_end_index=99999)
+			{
+				attribute_end_index := A_Index
+			}
+			else if(InStr(attribute_str,"--------")>0)	;skip
+			{
+			}
+			else
+			{
+				item_info_object["attribute_str"].push(attribute_str)
+			}
+		}
+	}
+	return item_info_object
+}
+
+analyzeItemAttributeByInfo(item_info_object)
+{
+	global
+	local item_attribute_object:= Object()
+	local mod_group_check := mod_group_jewel	;jewel mode
+	for index, element in mod_group_check
+	{
+		item_attribute_object[index]:=getMatchedAttribCount(item_info_object["attribute_str"],element)
+	}
+	
+	if(item_info_object["unid_flg"]=true)
+	{
+		return itemType_Jewel
+	}
+	
+	if(item_attribute_object[mod_group_jewel_BASE_DEF]>0 and item_attribute_object[mod_group_jewel_MANA]+item_attribute_object[mod_group_jewel_SPELL_DAMAGE]+item_attribute_object[mod_group_jewel_CHAOS_DAMAGE]+item_attribute_object[mod_group_jewel_1H_ATK]+item_attribute_object[mod_group_jewel_2H_ATK]+item_attribute_object[mod_group_jewel_COMMON_ATK]>0)
+	{
+		return itemType_ValuableJewel	;life/es+mana/damage x1
+	}
+	else if(item_attribute_object[mod_group_jewel_BASE_DEF]>0 and item_attribute_object[mod_group_jewel_RESIST]+item_attribute_object[mod_group_jewel_BASE_ATTRIB]+item_attribute_object[mod_group_jewel_MISC]>=2)
+	{
+		return itemType_ValuableJewel	;life/es+resist/attrib/misc x2
+	}
+	else if(item_attribute_object[mod_group_jewel_MANA]>0 and item_attribute_object[mod_group_jewel_SPELL_DAMAGE]+item_attribute_object[mod_group_jewel_COMMON_ATK]>0)
+	{
+		return itemType_ValuableJewel	;mana+spelldamage x1
+	}
+	else if(item_attribute_object[mod_group_jewel_SPELL_DAMAGE]+item_attribute_object[mod_group_jewel_COMMON_ATK]>1)
+	{
+		return itemType_ValuableJewel	;spelldamage x2
+	}
+	else if(item_attribute_object[mod_group_jewel_1H_ATK]+item_attribute_object[mod_group_jewel_COMMON_ATK]>1)
+	{
+		return itemType_ValuableJewel	;1H ATK x2
+	}
+	else if(item_attribute_object[mod_group_jewel_2H_ATK]+item_attribute_object[mod_group_jewel_COMMON_ATK]>1)
+	{
+		return itemType_ValuableJewel	;2H ATK x2
+	}
+	else if(item_attribute_object[mod_group_jewel_CHAOS_DAMAGE]>1)
+	{
+		return itemType_ValuableJewel	;chaos x2
+	}
+	else if(item_attribute_object[mod_group_jewel_ES]>0)
+	{
+		return itemType_CraftBase	;single es
+	}
+	else if(item_info_object["type_sub"]="Cobalt Jewel" or (item_info_object["type_sub"]="Hypnotic Eye Jewel" and item_info_object["ilvl"]>=75))
+	{
+		return itemType_CobaltJewel	 ;es base
+	}
+	;check value
+	return itemType_Jewel
+}
+
+;mod_array:{mod regex str,thresold value}
+;attrib_array:{attrib str}
+getMatchedAttribCount(attrib_array,mod_group)
+{
+	local matched_count := 0
+	local attribute_str
+	for attrib_index, attrib_element in attrib_array
+	{
+		attribute_str:=attrib_element
+		for mod_index, mod_element in mod_group
+		{
+			if(getModValue(attribute_str,mod_element[1])>=mod_element[2])
+			{
+				matched_count := matched_count+1
+				Break
+			}
+		}
+	}
+	return matched_count
+}
+
 getEquipBaseType(x,y)	;get item basetype by clipboard
 {
 	global
@@ -496,7 +820,6 @@ getEquipBaseType(x,y)	;get item basetype by clipboard
 	item_exist_temp := not CheckColorRGB(x-3,y-3,0x101010)
 	local basetype := ""
 	local type_index := 0
-	
 	if(item_exist_temp)
 	{
 		ClipWait, 2
@@ -504,6 +827,11 @@ getEquipBaseType(x,y)	;get item basetype by clipboard
 	else
 	{
 		Sleep,30
+	}
+	local item_info_object := getItemInfoClass(clipboard)
+	if(item_info_object["type_base"] := "Jewel")
+	{
+		return item_info_object["type_sub"]
 	}
 	Loop, parse, clipboard, `n, `r
 	{

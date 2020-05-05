@@ -33,7 +33,7 @@ Return
 ~^Numpad2::		;auto sort rare equip
 {
 	POEConstantLib_constantDefine()
-	sort_list := [4,5,6,7,8]
+	sort_list := [4,5,6,7]
 	for index, element in sort_list
 	{
 		autoSort(element)
@@ -42,37 +42,25 @@ Return
 	storeScrolls()
 	if(true)	;if auto shutdown mode then vendor after sort dealed
 	{
-		if(true)
+		if(false)
 		{
 			POEConstantLib_constantDefine()
-			vendor_sheet_list := [itemType_TempTrashNormal,itemType_TempTrash1] ;vendor list
+			vendor_sheet_list := [itemType_TempTrashNormal,itemType_TempTrash1,itemType_UniqueTemp2,itemType_UniqueTemp3] ;vendor list
 			for index, element in vendor_sheet_list
 			{
 				autoVendorTrash(element)
 			}
 		}
-		if(true)
+		if(false)
 		{
 			autoChaosVendorMain()
 		}
-		if(false)
+		if(true)
 		{
-			craft_list := Object()
-			Loop,5
-			{
-				craft_list.push(Object())
-			}
-			craft_list[1] := ["# Added Passive Skill is Purposeful Harbinger",1]
-			craft_list[2] := ["# Added Passive Skill is Heraldry",1]
-			craft_list[3] := ["# Added Passive Skill is Endbringer",1]
-			craft_list[4] := ["# Added Passive Skill is a Jewel Socket",1]
-			craft_list[5] := ["# Added Passive Skill is Replenishing Presence",1]
-			match_min_attrib_magic := 2
-			match_min_attrib_rare := 3
-			match_mode := "jewel"
-			;autoCraftMain(itemType_CraftBase,craft_list,match_min_attrib_magic,match_min_attrib_rare,match_mode)
+			setCraftList("influence")
+			;autoCraftMain(itemType_CraftBase)
 			openSheet(0)
-			autoCraftItem(craft_list,match_min_attrib_magic,match_min_attrib_rare,match_mode)
+			autoCraftItem()
 		}
 	}
 	endExecute()
@@ -93,7 +81,7 @@ Return
 	CtrlMoveItemByGrid(0,4)
 	CtrlMoveItemByGrid(1,4)	;store scrolls
 	CtrlMoveItemByGrid(2,4)
-	vendor_sheet_list := [itemType_TempTrashNormal,itemType_TempTrash1] ;vendor list
+	vendor_sheet_list := [itemType_Jewel,itemType_TempTrashNormal,itemType_TempTrash1,itemType_UniqueTemp2,itemType_UniqueTemp3] ;vendor list
 	for index, element in vendor_sheet_list
 	{
 		autoVendorTrash(element)
@@ -113,33 +101,9 @@ Return
 ~^Numpad6::		;auto craft
 {
 	POEConstantLib_constantDefine()
-	craft_list := Object()
-	Loop,5
-	{
-		craft_list.push(Object())
-	}
-	craft_list[1] := ["# Added Passive Skill is Purposeful Harbinger",1]
-	craft_list[2] := ["# Added Passive Skill is Heraldry",1]
-	craft_list[3] := ["# Added Passive Skill is Endbringer",1]
-	craft_list[4] := ["# Added Passive Skill is a Jewel Socket",1]
-	craft_list[5] := ["# Added Passive Skill is Replenishing Presence",1]
-	;~ craft_list[1]:=["+# to maximum Energy Shield",26]
-	;~ craft_list[2]:=["+#% to Global Critical Strike Multiplier",9]
-	;~ craft_list[3]:=["+# to Intelligence",15]
-	;~ craft_list[4]:=["#% increased Movement Speed if you've Killed Recently",4]
-	
-	;~ craft_list[1]:=["#% increased maximum Energy Shield",6]
-	;~ craft_list[2]:=["+#% to Critical Strike Multiplier with Cold Skills",15]
-	;~ craft_list[3]:=["+#% to Critical Strike Multiplier with Lightning Skills",15]
-	;~ craft_list[4]:=["+#% to Global Critical Strike Multiplier",9]
-	;~ craft_list[5]:=["+#% to Critical Strike Multiplier for Spells",12]
-	;~ craft_list[6]:=["+#% to Critical Strike Multiplier with Elemental Skills",12]
-	;~ craft_list[7]:=["+# to Intelligence",15]
-	match_min_attrib_magic := 2
-	match_min_attrib_rare := 3
-	match_mode := "jewel"
-	;autoCraftMain(87,craft_list,match_min_attrib_magic,match_min_attrib_rare,match_mode)
-	autoCraftItem(craft_list,match_min_attrib_magic,match_min_attrib_rare,match_mode)
+	setCraftList("influence")
+	;autoCraftMain(itemType_CraftBase)
+	autoCraftItem()
 }
 Return
 
@@ -154,7 +118,7 @@ Return
 }
 Return
 
-autoCraftMain(itemSheet,craft_list,match_min_attrib_magic,match_min_attrib_rare,match_mode) ;auto craft all items in target sheet
+autoCraftMain(itemSheet) ;auto craft all items in target sheet
 {
 	global
 	local flag := true
@@ -177,7 +141,7 @@ autoCraftMain(itemSheet,craft_list,match_min_attrib_magic,match_min_attrib_rare,
 			moveSuccess := 0
 			openSheet(0)
 			CtrlMoveItemByGrid(0,0)
-			autoCraftItem(craft_list,match_min_attrib_magic,match_min_attrib_rare,match_mode)
+			autoCraftItem()
 			moveSuccess := CtrlMoveItem(craft_item_x,craft_item_y)
 			if(moveSuccess=1)
 			{
@@ -203,7 +167,7 @@ autoCraftMain(itemSheet,craft_list,match_min_attrib_magic,match_min_attrib_rare,
 	}
 }
 
-autoCraftItem(craft_list,match_min_attrib_magic,match_min_attrib_rare,match_mode)
+autoCraftItem()
 {
 	global
 	MouseMove craft_item_x,craft_item_y
@@ -215,7 +179,10 @@ autoCraftItem(craft_list,match_min_attrib_magic,match_min_attrib_rare,match_mode
 		clipboard :=
 		Send ^c
 		Sleep,200
-		result_list := analyzeItemExMatch(clipboard,craft_list)
+		result_list := analyzeItemExMatch(clipboard,craft_magic_list,craft_rare_list,craft_ensure_list)
+		MsgBox % result_list[1]
+		MsgBox % result_list[2]
+		MsgBox % result_list[3]
 		success_flg := autoCraftByAlt(result_list,match_min_attrib_magic,match_min_attrib_rare)
 	}
 }
@@ -223,18 +190,25 @@ autoCraftItem(craft_list,match_min_attrib_magic,match_min_attrib_rare,match_mode
 autoCraftByAlt(result_list,match_min_attrib_magic,match_min_attrib_rare)
 {
 	global
-	local attribute_count := result_list[1]
-	local match_count := result_list[2]
+	local rarity := result_list[1]
+	local attribute_count := result_list[2]
+	local match_count := result_list[3]
 	local wait_time := 200
-	if(attribute_count>=3)
+	if(attribute_count=1)
 	{
-		if(match_count>=match_min_attrib_rare)
+		if((match_count=1 and match_min_attrib_magic>1) or (match_count=0 and match_min_attrib_magic=1 and match_min_attrib_rare>0))
+		{
+			useCurrency("aug")
+			CommonClick(craft_item_x,craft_item_y)
+			Sleep,wait_time
+		}
+		else if(match_count=1 and match_min_attrib_magic=1 and match_min_attrib_rare=0)
 		{
 			return true
 		}
 		else
 		{
-			useCurrency("scour")
+			useCurrency("alter")
 			CommonClick(craft_item_x,craft_item_y)
 			Sleep,wait_time
 		}
@@ -243,9 +217,16 @@ autoCraftByAlt(result_list,match_min_attrib_magic,match_min_attrib_rare)
 	{
 		if(match_count>=match_min_attrib_magic)
 		{
-			useCurrency("regal")
-			CommonClick(craft_item_x,craft_item_y)
-			Sleep,wait_time
+			if(match_min_attrib_rare>0)
+			{
+				useCurrency("regal")
+				CommonClick(craft_item_x,craft_item_y)
+				Sleep,wait_time
+			}
+			else
+			{
+				return true
+			}
 		}
 		else
 		{
@@ -254,19 +235,33 @@ autoCraftByAlt(result_list,match_min_attrib_magic,match_min_attrib_rare)
 			Sleep,wait_time
 		}
 	}
-	else if(attribute_count=1)
+	else if(attribute_count>=3)
 	{
-		if(match_count=1 or match_min_attrib_magic=1)
+		if(rarity=2)
 		{
-			useCurrency("aug")
-			CommonClick(craft_item_x,craft_item_y)
-			Sleep,wait_time
+			if(match_count>=match_min_attrib_rare)
+			{
+				return true
+			}
+			else
+			{
+				useCurrency("scour")
+				CommonClick(craft_item_x,craft_item_y)
+				Sleep,wait_time
+			}
 		}
-		else
+		else if(rarity=1)
 		{
-			useCurrency("alter")
-			CommonClick(craft_item_x,craft_item_y)
-			Sleep,wait_time
+			if(match_count>=match_min_attrib_magic)
+			{
+				return true
+			}
+			else
+			{
+				useCurrency("alter")
+				CommonClick(craft_item_x,craft_item_y)
+				Sleep,wait_time
+			}
 		}
 	}
 	else if(attribute_count=0)
@@ -395,6 +390,18 @@ autoSort(sheet)		;auto sort main
 					CommonClick_left()		;unique&misc equip identifie	
 					Sleep,10
 				}
+				else if(item_type = itemType_Jewel)
+				{
+					CommonClick_left()		;identifie	
+					Sleep,10
+					clipboard =		;clear clipboard
+					while(clipboard="")
+					{
+						Send ^c
+						Sleep,10
+					}
+					item_type := sortItem()	;recheck value after identified
+				}
 				else if(item_type >= itemType_Ring and item_type < itemType_2H)
 				{
 					if(rare_identify_flg=1)
@@ -502,7 +509,10 @@ autoSort(sheet)		;auto sort main
 	sortItemInBatch(array_type[itemType_Sample],itemType_Sample,60)			;Sample
 	sortItemInBatch(array_type[itemType_Flasks],itemType_Flasks,24)			;Flask
 	sortItemInBatch(array_type[itemType_Jewel],itemType_Jewel,60)		;Jewel
-	sortItemInBatch(array_type[itemType_ClusterJewel],itemType_ClusterJewel,60)		;Jewel
+	sortItemInBatch(array_type[itemType_CraftBase],itemType_CraftBase,60)		;Valueable Jewel
+	sortItemInBatch(array_type[itemType_ValuableJewel],itemType_ValuableJewel,60)		;Valueable Jewel
+	sortItemInBatch(array_type[itemType_CobaltJewel],itemType_CobaltJewel,60)		;Valueable Jewel
+	sortItemInBatch(array_type[itemType_ClusterJewel],itemType_ClusterJewel,60)		;Cluster Jewel
 	sortItemInBatch(array_type[itemType_Delve],itemType_Delve,60)		;fossil,resonator
 	sortItemInBatch(array_type[itemType_Shard],itemType_Shard,60)		;shard
 	sortItemInBatch(array_type[itemType_Prophecy],itemType_Prophecy,60)		;shard
@@ -832,9 +842,13 @@ sortFailItem(tab_index,iCount,periodCount,full_mode_flg)
 	{
 		sortItemIntoTabs(tab_index+6,iCount,periodCount,true)	;chaos recipe,then sort into bak
 	}
-	else if((tab_index>=itemType_GloveBak and tab_index<=itemType_2HBak) or (tab_index>=itemType_Ring and tab_index<=itemType_Belt))
+	else if((tab_index>=itemType_GloveBak and tab_index<=itemType_2HBak))
 	{
 		sortItemIntoTabs(itemType_TempTrash1,iCount,periodCount,true)
+	}
+	else if((tab_index>=itemType_Ring and tab_index<=itemType_Belt))
+	{
+		sortItemIntoTabs(itemType_Jewel,iCount,periodCount,true)
 	}
 	else if(tab_index=itemType_TempTrashNormal)
 	{
