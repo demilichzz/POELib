@@ -55,7 +55,7 @@ Return
 		{
 			autoChaosVendorMain()
 		}
-		if(false)
+		if(true)
 		{
 			setCraftList("herald cluster")
 			autoCraftMain(itemType_CraftBase)
@@ -278,7 +278,7 @@ autoCraftByAlt(result_list,match_min_attrib_magic,match_min_attrib_rare)
 		CommonClick(craft_item_x,craft_item_y)
 		Sleep,wait_time
 	}
-	if(craft_count_alter>2400)	;no alt left, then stop
+	if(craft_count_alter>2000)	;no alt left, then stop
 	{
 		return -1
 	}
@@ -662,7 +662,7 @@ sortItemInBatch(array_axis,tab_index,periodCount)
 			}
 		}
 	}
-	if(array_axis.MaxIndex>0)
+	if(array_axis.MaxIndex()>0)
 	{
 		CheckInvIsEmpty(source_sheet)
 	}
