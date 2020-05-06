@@ -33,7 +33,7 @@ Return
 ~^Numpad2::		;auto sort rare equip
 {
 	POEConstantLib_constantDefine()
-	sort_list := [4,5,6,7]
+	sort_list := [4,5,6,7,8]
 	for index, element in sort_list
 	{
 		autoSort(element)
@@ -42,25 +42,25 @@ Return
 	storeScrolls()
 	if(true)	;if auto shutdown mode then vendor after sort dealed
 	{
-		if(false)
+		if(true)
 		{
 			POEConstantLib_constantDefine()
-			vendor_sheet_list := [itemType_TempTrashNormal,itemType_TempTrash1,itemType_UniqueTemp2,itemType_UniqueTemp3] ;vendor list
+			vendor_sheet_list := [itemType_Jewel,itemType_TempTrashNormal,itemType_TempTrash1,itemType_UniqueTemp3] ;vendor list
 			for index, element in vendor_sheet_list
 			{
 				autoVendorTrash(element)
 			}
 		}
-		if(false)
+		if(true)
 		{
 			autoChaosVendorMain()
 		}
-		if(true)
+		if(false)
 		{
-			setCraftList("influence")
-			;autoCraftMain(itemType_CraftBase)
-			openSheet(0)
-			autoCraftItem()
+			setCraftList("herald cluster")
+			autoCraftMain(itemType_CraftBase)
+			;openSheet(0)
+			;autoCraftItem()
 		}
 	}
 	endExecute()
@@ -81,7 +81,7 @@ Return
 	CtrlMoveItemByGrid(0,4)
 	CtrlMoveItemByGrid(1,4)	;store scrolls
 	CtrlMoveItemByGrid(2,4)
-	vendor_sheet_list := [itemType_Jewel,itemType_TempTrashNormal,itemType_TempTrash1,itemType_UniqueTemp2,itemType_UniqueTemp3] ;vendor list
+	vendor_sheet_list := [itemType_Jewel,itemType_TempTrashNormal,itemType_TempTrash1] ;vendor list
 	for index, element in vendor_sheet_list
 	{
 		autoVendorTrash(element)
@@ -101,9 +101,10 @@ Return
 ~^Numpad6::		;auto craft
 {
 	POEConstantLib_constantDefine()
-	setCraftList("influence")
+	setCraftList("herald cluster")
 	;autoCraftMain(itemType_CraftBase)
 	autoCraftItem()
+	endExecute()
 }
 Return
 
@@ -130,6 +131,7 @@ autoCraftMain(itemSheet) ;auto craft all items in target sheet
 	local y_repeat := 12
 	local div := 12
 	local moveSuccess := 0
+	local craft_result := 0
 	while(flag)
 	{
 		openSheet(itemSheet)
@@ -141,7 +143,11 @@ autoCraftMain(itemSheet) ;auto craft all items in target sheet
 			moveSuccess := 0
 			openSheet(0)
 			CtrlMoveItemByGrid(0,0)
-			autoCraftItem()
+			craft_result := autoCraftItem()
+			if(craft_result=-1)
+			{
+				Break
+			}
 			moveSuccess := CtrlMoveItem(craft_item_x,craft_item_y)
 			if(moveSuccess=1)
 			{
@@ -172,19 +178,17 @@ autoCraftItem()
 	global
 	MouseMove craft_item_x,craft_item_y
 	local result_list := Object()
-	local success_flg := false
-	while(not success_flg)
+	local success_flg := 0
+	while(success_flg=0)
 	{
 		MouseMove craft_item_x,craft_item_y
 		clipboard :=
 		Send ^c
 		Sleep,200
 		result_list := analyzeItemExMatch(clipboard,craft_magic_list,craft_rare_list,craft_ensure_list)
-		MsgBox % result_list[1]
-		MsgBox % result_list[2]
-		MsgBox % result_list[3]
 		success_flg := autoCraftByAlt(result_list,match_min_attrib_magic,match_min_attrib_rare)
 	}
+	return success_flg	;
 }
 
 autoCraftByAlt(result_list,match_min_attrib_magic,match_min_attrib_rare)
@@ -193,7 +197,8 @@ autoCraftByAlt(result_list,match_min_attrib_magic,match_min_attrib_rare)
 	local rarity := result_list[1]
 	local attribute_count := result_list[2]
 	local match_count := result_list[3]
-	local wait_time := 200
+	MsgBox % rarity attribute_count match_count
+	local wait_time := 300
 	if(attribute_count=1)
 	{
 		if((match_count=1 and match_min_attrib_magic>1) or (match_count=0 and match_min_attrib_magic=1 and match_min_attrib_rare>0))
@@ -204,11 +209,12 @@ autoCraftByAlt(result_list,match_min_attrib_magic,match_min_attrib_rare)
 		}
 		else if(match_count=1 and match_min_attrib_magic=1 and match_min_attrib_rare=0)
 		{
-			return true
+			return 1
 		}
 		else
 		{
 			useCurrency("alter")
+			craft_count_alter := craft_count_alter + 1
 			CommonClick(craft_item_x,craft_item_y)
 			Sleep,wait_time
 		}
@@ -225,12 +231,13 @@ autoCraftByAlt(result_list,match_min_attrib_magic,match_min_attrib_rare)
 			}
 			else
 			{
-				return true
+				return 1
 			}
 		}
 		else
 		{
 			useCurrency("alter")
+			craft_count_alter := craft_count_alter + 1
 			CommonClick(craft_item_x,craft_item_y)
 			Sleep,wait_time
 		}
@@ -241,7 +248,7 @@ autoCraftByAlt(result_list,match_min_attrib_magic,match_min_attrib_rare)
 		{
 			if(match_count>=match_min_attrib_rare)
 			{
-				return true
+				return 1
 			}
 			else
 			{
@@ -254,11 +261,12 @@ autoCraftByAlt(result_list,match_min_attrib_magic,match_min_attrib_rare)
 		{
 			if(match_count>=match_min_attrib_magic)
 			{
-				return true
+				return 1
 			}
 			else
 			{
 				useCurrency("alter")
+				craft_count_alter := craft_count_alter + 1
 				CommonClick(craft_item_x,craft_item_y)
 				Sleep,wait_time
 			}
@@ -270,7 +278,11 @@ autoCraftByAlt(result_list,match_min_attrib_magic,match_min_attrib_rare)
 		CommonClick(craft_item_x,craft_item_y)
 		Sleep,wait_time
 	}
-	return false
+	if(craft_count_alter>2400)	;no alt left, then stop
+	{
+		return -1
+	}
+	return 0
 }
 
 
@@ -1124,7 +1136,7 @@ pickEquip(page,hh,ww,div)
 		{
 			local x := stash_start_x + (i * 632 // div * ww)
 			local y := stash_start_y + (j * 632 // div * hh)
-			if(checkItemInfo(x,y))	;item exists
+			if(CheckItemExist(x,y))	;item exists
 			{
 				CtrlMoveItem(x,y)
 				flag := false
@@ -1161,7 +1173,7 @@ pickEquip(page,hh,ww,div)
 		{
 			local x := stash_start_x + (i * 632 // div * ww)
 			local y := stash_start_y + (j * 632 // div * hh)
-			if(checkItemInfo(x,y))	;item exists
+			if(CheckItemExist(x,y))	;item exists
 			{
 				CtrlMoveItem(x,y)
 				flag := false
@@ -1207,14 +1219,14 @@ vendorMove_all()
 		{
 			x := inv_start_x+i*disp
 			y := inv_start_y+j*disp
-			while(checkColorRGB(x,y,0x101010)=false and checkColorRGB(x+x_diff,y+y_diff,0x101010)=true)	;color check
+			while((checkColorRGB(x,y,0x101010)=false or checkColorRGB(x+10,y,0x101010)=false or checkColorRGB(x,y+10,0x101010)=false) and (checkColorRGB(x+x_diff,y+y_diff,0x101010)=true and checkColorRGB(x+x_diff+10,y+y_diff,0x101010)=true) and checkColorRGB(x+x_diff,y+y_diff+10,0x101010)=true)	;inv has item and vendor UI has no item color check
 			{
 				MouseMove x,y
 				Sleep,30
 				CtrlClick()
 				MouseMove 1353,485	;leave item to not show tooltips
 				Sleep,100
-				if(A_Index>10 and CheckItemInfo(x+x_diff,y+y_diff)=true)	;if color check not work,then go iteminfo check
+				if(A_Index>10 and CheckItemExist(x+x_diff,y+y_diff)=true)	;if color check not work,then go iteminfo check
 				{
 					Break
 				}

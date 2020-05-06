@@ -113,6 +113,7 @@ POEConstantLib_constantDefine()
 	craft_magic_list := Object()
 	craft_rare_list := Object()
 	craft_ensure_list := Object()
+	craft_count_alter := 0
 	match_min_attrib_magic := 0
 	match_min_attrib_rare := 0
 	match_mode := 0

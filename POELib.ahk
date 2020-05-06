@@ -14,7 +14,8 @@ SetStoreCapslockMode, off
 ~^Numpad9::		;test
 {
 	POEConstantLib_constantDefine()
-	itype := sortItem()
+	i := sortItem()
+	MsgBox % i
 }
 Return
 
@@ -143,14 +144,15 @@ setCraftList(craft_type)
 	}
 	else if(craft_type="herald cluster")
 	{
-		Loop,4
+		Loop,5
 		{
 			craft_magic_list.push(Object())
 		}
 		craft_magic_list[1] := ["# Added Passive Skill is Purposeful Harbinger",1]
 		craft_magic_list[2] := ["# Added Passive Skill is Heraldry",1]
-		craft_magic_list[3] := ["# Added Passive Skill is a Jewel Socket",1]
-		craft_magic_list[4] := ["# Added Passive Skill is Replenishing Presence",1]
+		craft_magic_list[3] := ["# Added Passive Skill is Endbringer",1]
+		craft_magic_list[4] := ["# Added Passive Skill is a Jewel Socket",1]
+		craft_magic_list[5] := ["# Added Passive Skill is Replenishing Presence",1]
 		Loop,5
 		{
 			craft_rare_list.push(Object())
@@ -238,7 +240,8 @@ analyzeItemExMatch(cp,craft_magic_list,craft_rare_list,craft_ensure_list)
 			}
 			if(getModValue(attribute_str,"Item Level: #")>0)
 			{
-				if(InStr(match_mode,"cluster">0))
+				
+				if(InStr(match_mode,"cluster")>0)
 				{
 					attribute_start_index:=A_Index+4
 				}
@@ -536,8 +539,8 @@ sortItem()		;sort single item by clipboard
 				}
 				else if(Instr(A_LoopField,"Jewel")>0 and Instr(A_LoopField,"Jeweller")<=0 and Instr(A_LoopField,"Jewelled")<=0)
 				{
-					item_info := getItemInfoClass(Clipboard)
-					MsgBox % item_info["type_sub"]
+					;item_info := getItemInfoClass(Clipboard)
+					;MsgBox % item_info["type_sub"]
 					;IAO := analyzeItemAttributeByInfo(item_info)
 					return analyzeItemAttributeByInfo(getItemInfoClass(Clipboard))
 				}
@@ -586,7 +589,7 @@ sortItem()		;sort single item by clipboard
 				}
 				else if(Instr(A_LoopField,"Jewel")>0 and Instr(A_LoopField,"Jeweller")<=0 and Instr(A_LoopField,"Jewelled")<=0)
 				{
-					;item_info := getItemInfoClass(Clipboard)
+					item_info := getItemInfoClass(Clipboard)
 					;IAO := analyzeItemAttributeByInfo(item_info)
 					return analyzeItemAttributeByInfo(getItemInfoClass(Clipboard))
 				}
@@ -698,7 +701,7 @@ getItemInfoClass(cp)
 				type_sub_list.push("Ghastly Eye Jewel")
 				Loop % type_sub_list.Length()
 				{
-					if(InStr(attribute_str,type_sub_list[A_Index])>=0)
+					if(InStr(attribute_str,type_sub_list[A_Index])>0)
 					{
 						item_info_object["type_sub"] := type_sub_list[A_Index]
 						Break
@@ -781,7 +784,7 @@ analyzeItemAttributeByInfo(item_info_object)
 	}
 	else if(item_attribute_object[mod_group_jewel_ES]>0)
 	{
-		return itemType_CraftBase	;single es
+		return itemType_CobaltJewel	;single es
 	}
 	else if(item_info_object["type_sub"]="Cobalt Jewel" or (item_info_object["type_sub"]="Hypnotic Eye Jewel" and item_info_object["ilvl"]>=75))
 	{
@@ -829,7 +832,7 @@ getEquipBaseType(x,y)	;get item basetype by clipboard
 		Sleep,30
 	}
 	local item_info_object := getItemInfoClass(clipboard)
-	if(item_info_object["type_base"] := "Jewel")
+	if(item_info_object["type_base"] = "Jewel")
 	{
 		return item_info_object["type_sub"]
 	}
@@ -1321,7 +1324,7 @@ useCurrency(ctype)
 }
 
 ;check if item exist by clipboard
-CheckItemInfo(x,y)
+CheckItemExist(x,y)
 {
 	MouseMove x,y
 	Sleep,5
