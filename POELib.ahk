@@ -172,19 +172,30 @@ setCraftList(craft_type)
 	}
 	else if(craft_type="cobalt")
 	{
-		Loop,7
+		Loop,6
 		{
 			craft_magic_list.push(Object())
 		}
 		craft_magic_list[1]:=["+# to maximum Energy Shield",26]
 		craft_magic_list[2]:=["+#% to Global Critical Strike Multiplier",9]
 		craft_magic_list[3]:=["#% increased maximum Energy Shield",6]
-		craft_magic_list[4]:=["+#% to Critical Strike Multiplier with Cold Skills",15]
-		craft_magic_list[5]:=["+#% to Critical Strike Multiplier with Lightning Skills",15]
-		craft_magic_list[6]:=["+#% to Critical Strike Multiplier for Spells",12]
-		craft_magic_list[7]:=["+#% to Critical Strike Multiplier with Elemental Skills",12]
+		;craft_magic_list[4]:=["+#% to Critical Strike Multiplier with Cold Skills",15]
+		craft_magic_list[4]:=["+#% to Critical Strike Multiplier with Lightning Skills",15]
+		craft_magic_list[5]:=["+#% to Critical Strike Multiplier for Spells",12]
+		craft_magic_list[6]:=["+#% to Critical Strike Multiplier with Elemental Skills",12]
+		Loop,6
+		{
+			craft_rare_list.push(Object())
+		}
+		craft_rare_list[1]:=["+# to maximum Energy Shield",26]
+		craft_rare_list[2]:=["+#% to Global Critical Strike Multiplier",9]
+		craft_rare_list[3]:=["#% increased maximum Energy Shield",6]
+		;craft_magic_list[4]:=["+#% to Critical Strike Multiplier with Cold Skills",15]
+		craft_rare_list[4]:=["+#% to Critical Strike Multiplier with Lightning Skills",15]
+		craft_rare_list[5]:=["+#% to Critical Strike Multiplier for Spells",12]
+		craft_rare_list[6]:=["+#% to Critical Strike Multiplier with Elemental Skills",12]
 		match_min_attrib_magic := 1
-		match_min_attrib_rare := 3
+		match_min_attrib_rare := 1
 	}
 	else if(craft_type="influence")
 	{

@@ -45,7 +45,7 @@ Return
 		if(true)
 		{
 			POEConstantLib_constantDefine()
-			vendor_sheet_list := [itemType_Jewel,itemType_TempTrashNormal,itemType_TempTrash1,itemType_UniqueTemp3] ;vendor list
+			vendor_sheet_list := [itemType_Jewel,itemType_TempTrashNormal,itemType_TempTrash1,itemType_UniqueTemp2,itemType_UniqueTemp3] ;vendor list
 			for index, element in vendor_sheet_list
 			{
 				autoVendorTrash(element)
@@ -57,7 +57,7 @@ Return
 		}
 		if(true)
 		{
-			setCraftList("herald cluster")
+			setCraftList("cobalt")
 			autoCraftMain(itemType_CraftBase)
 			;openSheet(0)
 			;autoCraftItem()
@@ -101,9 +101,9 @@ Return
 ~^Numpad6::		;auto craft
 {
 	POEConstantLib_constantDefine()
-	setCraftList("herald cluster")
-	;autoCraftMain(itemType_CraftBase)
-	autoCraftItem()
+	setCraftList("cobalt")
+	autoCraftMain(itemType_CraftBase)
+	;autoCraftItem()
 	endExecute()
 }
 Return
@@ -186,6 +186,7 @@ autoCraftItem()
 		Send ^c
 		Sleep,200
 		result_list := analyzeItemExMatch(clipboard,craft_magic_list,craft_rare_list,craft_ensure_list)
+		;MsgBox % result_list[1] result_list[2] result_list[3]
 		success_flg := autoCraftByAlt(result_list,match_min_attrib_magic,match_min_attrib_rare)
 	}
 	return success_flg	;
@@ -197,7 +198,6 @@ autoCraftByAlt(result_list,match_min_attrib_magic,match_min_attrib_rare)
 	local rarity := result_list[1]
 	local attribute_count := result_list[2]
 	local match_count := result_list[3]
-	MsgBox % rarity attribute_count match_count
 	local wait_time := 300
 	if(attribute_count=1)
 	{
@@ -278,7 +278,7 @@ autoCraftByAlt(result_list,match_min_attrib_magic,match_min_attrib_rare)
 		CommonClick(craft_item_x,craft_item_y)
 		Sleep,wait_time
 	}
-	if(craft_count_alter>2000)	;no alt left, then stop
+	if(craft_count_alter>2500)	;no alt left, then stop
 	{
 		return -1
 	}
@@ -413,6 +413,7 @@ autoSort(sheet)		;auto sort main
 						Sleep,10
 					}
 					item_type := sortItem()	;recheck value after identified
+					sheet_index := item_type
 				}
 				else if(item_type >= itemType_Ring and item_type < itemType_2H)
 				{
