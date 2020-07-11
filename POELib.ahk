@@ -14,8 +14,11 @@ SetStoreCapslockMode, off
 ~^Numpad9::		;test
 {
 	POEConstantLib_constantDefine()
-	i := sortItem()
-	MsgBox % i
+	;iic := getItemInfoClass(clipboard)
+	;outputItemInfoClass(iic)
+	
+	item := sortItem()
+	MsgBox %item%
 }
 Return
 
@@ -112,9 +115,9 @@ ColorClickMulti(x,y,xtar,ytar,cclist,mode,clickdelay)
 setCraftList(craft_type)
 {
 	global
-	craft_magic_list := Object()
-	craft_rare_list := Object()
-	craft_ensure_list := Object()
+	local craft_magic_list := Object()
+	local craft_rare_list := Object()
+	local craft_ensure_list := Object()
 	match_mode := craft_type
 	if(craft_type="warcry cluster")
 	{
@@ -454,6 +457,11 @@ sortItem()		;sort single item by clipboard
 	Send ^c
 	MouseGetPos, x, y
 	local item_info := Object()
+	local rare_flg := false
+	local rarity := 0
+	currency_flg := false
+	equip_type := 0
+	local unid_flg := false
 	item_exist_temp := not CheckColorRGB(x-3,y-3,0x101010)
 	if(item_exist_temp)		;if color check result is item exist(surely exist) 
 	{
@@ -463,10 +471,6 @@ sortItem()		;sort single item by clipboard
 	{
 		Sleep,30
 	}
-	rare_flg := false
-	currency_flg := false
-	equip_type := 0
-	unid_flg := false
 	if (Instr(clipboard,"Unidentified")>0)
 	{
 		unid_flg := true
@@ -487,7 +491,7 @@ sortItem()		;sort single item by clipboard
 	{
 		return itemType_SpecialBase
 	}
-	else if(Instr(clipboard,"Right-click to add this prophecy to your character.")>0)	;shard,prophecy
+	else if(Instr(clipboard,"Right-click to add this prophecy to your character.")>0)	;prophecy
 	{
 		return itemType_Prophecy
 	}
@@ -571,7 +575,7 @@ sortItem()		;sort single item by clipboard
 				{
 					return itemType_Misc
 				}
-				else if((currency_flg and Instr(A_LoopField, "Shard")>0) or Instr(A_LoopField, "Breachstone")>0 or Instr(clipboard,"Delirium Orb")>0 or A_LoopField="Simulacrum")
+				else if((currency_flg and Instr(A_LoopField, "Shard")>0) or Instr(A_LoopField, "Breachstone")>0 or Instr(clipboard,"Delirium Orb")>0 or A_LoopField="Simulacrum" or Instr(A_LoopField,"Fortune ")>0 or Instr(A_LoopField,"Horticrafting ")>0 or Instr(A_LoopField,"Lifeforce ")>0 or Instr(A_LoopField,"Facetor's Lens")>0)
 				{
 					return itemType_Shard
 				}
@@ -582,6 +586,10 @@ sortItem()		;sort single item by clipboard
 				else if(currency_flg and Instr(A_LoopField, "Oil")>0)
 				{
 					return itemType_Oil
+				}
+				else if(currency_flg and (A_LoopField="Pylon" or Instr(A_LoopField, "Lifeforce Collector")>0 or A_LoopField="Storage Tank" or A_LoopField="Disperser" or Instr(A_LoopField, "Seed")>0))
+				{
+					return itemType_Harvest
 				}
 				else if(currency_flg)
 				{
@@ -607,7 +615,30 @@ sortItem()		;sort single item by clipboard
 			}
 			if (A_Index>1 and rare_flg=false)
 			{
-				return itemType_TempTrashNormal ;vendor trash nonrare
+				item_info := getItemInfoClass(Clipboard)
+				if(item_info["type_base"]<>0)
+				{
+					if(item_info["type_base"]="Hammer")
+					{
+						return itemType_TempTrash3
+					}
+					else if(item_info["ilvl"]<=75 and item_info["ilvl"]>=60)
+					{
+						return itemType_TempCraftBase
+					}
+					else if(item_info["ilvl"]<60)
+					{
+						return itemType_TempTrashNormal
+					}
+					else
+					{
+						return itemType_TempCraftBaseHigh
+					}
+				}
+				else
+				{
+					return itemType_TempTrashNormal ;vendor trash nonrare
+				}
 			}
 			else
 			{
@@ -635,10 +666,22 @@ sortItem()		;sort single item by clipboard
 		}
 		if(rare_flg and equip_type > 0)
 		{
-			; if (unid_flg := true)
+			; if (unid_flg = true)
 			if(true)
 			{
 				local equip_info:=checkEquipInfo(clipboard,equip_type)
+				if(equip_info >= itemType_Ring and equip_info <= itemType_2H)
+				{
+					if(unid_flg = false)
+					{
+						;return equip_info + useUnidRecipe * 50
+						return itemType_TempTrash4
+					}
+					else
+					{
+						return equip_info
+					}
+				}
 				return equip_info
 			}
 			;else
@@ -662,7 +705,7 @@ getItemInfoClass(cp)
 	item_info_object["unid_flg"] := false
 	item_info_object["type_base"] := 0
 	item_info_object["type_sub"] := 0
-	item_info_object["rarity"] := 0
+	item_info_object["rarity"] := -1	;not equip
 	item_info_object["ilvl"] := 0
 	item_info_object["attribute_str"] := Object()
 	local attribute_str := ""
@@ -691,6 +734,10 @@ getItemInfoClass(cp)
 			{
 				item_info_object["rarity"] := 0
 			}
+			else if(InStr(attribute_str,"Rarity: Unique")>0)
+			{
+				item_info_object["rarity"] := 3
+			}
 			if(item_info_object["rarity"]=2 and item_info_object["unid_flg"] = false)
 			{
 				type_index := 3
@@ -698,25 +745,13 @@ getItemInfoClass(cp)
 		}
 		if(A_Index=type_index)
 		{
-			if(Instr(attribute_str,"Jewel")>0 and Instr(attribute_str,"Jeweller")<=0 and Instr(attribute_str,"Jewelled")<=0)
+			Loop % type_group.Length()
 			{
-				item_info_object["type_base"] := "Jewel"
-				local type_sub_list := Object()
-				type_sub_list.push("Crimson Jewel")
-				type_sub_list.push("Viridian Jewel")
-				type_sub_list.push("Cobalt Jewel")
-				type_sub_list.push("Prismatic Jewel")
-				type_sub_list.push("Murderous Eye Jewel")
-				type_sub_list.push("Searching Eye Jewel")
-				type_sub_list.push("Hypnotic Eye Jewel")
-				type_sub_list.push("Ghastly Eye Jewel")
-				Loop % type_sub_list.Length()
+				if(InStr(attribute_str,type_group[A_Index][1])>0)
 				{
-					if(InStr(attribute_str,type_sub_list[A_Index])>0)
-					{
-						item_info_object["type_sub"] := type_sub_list[A_Index]
-						Break
-					}
+					item_info_object["type_sub"] := type_group[A_Index][1]
+					item_info_object["type_base"] := type_group[A_Index][2]
+					Break
 				}
 			}
 		}
@@ -750,6 +785,16 @@ getItemInfoClass(cp)
 	return item_info_object
 }
 
+outputItemInfoClass(item_info_object)
+{
+	local unid_flg := item_info_object["unid_flg"]
+	local type_base := item_info_object["type_base"]
+	local type_sub := item_info_object["type_sub"]
+	local rarity := item_info_object["rarity"]
+	local ilvl := item_info_object["ilvl"] 
+	MsgBox, , , unid_flg:%unid_flg%`ntype_base:%type_base%`ntype_sub:%type_sub%`nrarity:%rarity%`nilvl:%ilvl%
+}
+
 analyzeItemAttributeByInfo(item_info_object)
 {
 	global
@@ -759,7 +804,10 @@ analyzeItemAttributeByInfo(item_info_object)
 	{
 		item_attribute_object[index]:=getMatchedAttribCount(item_info_object["attribute_str"],element)
 	}
-	
+	if(item_info_object["ilvl"]>75)
+	{
+		return itemType_TrashTrinkets	;harvest craft ilvl restrict
+	}
 	if(item_info_object["unid_flg"]=true)
 	{
 		return itemType_Jewel
@@ -797,7 +845,7 @@ analyzeItemAttributeByInfo(item_info_object)
 	{
 		return itemType_CobaltJewel	;single es
 	}
-	else if(item_info_object["type_sub"]="Cobalt Jewel" or (item_info_object["type_sub"]="Hypnotic Eye Jewel" and item_info_object["ilvl"]>=75))
+	else if(item_info_object["type_sub"]="Cobalt Jewel" or (item_info_object["type_sub"]="Hypnotic Eye Jewel" and item_info_object["ilvl"]>=68))
 	{
 		return itemType_CobaltJewel	 ;es base
 	}
@@ -1291,7 +1339,7 @@ CheckSheetIsEmpty()
 	sheetIsEmptyCount := CheckEmptyByAxis(stash_start_x + 0*disp/2,stash_start_y + 0*disp/2) and CheckEmptyByAxis(stash_start_x + 3*disp/2,stash_start_y + 0*disp/2) and CheckEmptyByAxis(stash_start_x + 0*disp/2,stash_start_y + 3*disp/2) and CheckEmptyByAxis(stash_start_x + 3*disp/2,stash_start_y + 3*disp/2)
 	return sheetIsEmptyCount
 }
-CheckInvIsEmpty(origin_index)
+CheckInvIsEmpty(origin_index,store_index)
 {
 	global
 	local i:=0
@@ -1304,11 +1352,11 @@ CheckInvIsEmpty(origin_index)
 			invIsEmptyCount:=invIsEmptyCount+1
 			if(invIsEmptyCount=1)
 			{
-				openSheet(itemType_Valuable)
+				openSheet(store_index)
 			}
 			if (CtrlMoveItem(inv_start_x + i*disp + 10,inv_start_y + j*disp + 10)=0)
 			{
-				MsgBox "error,valuable sheet is full"
+				return -1
 			}
 		}
 		j:=j+1
@@ -1319,6 +1367,7 @@ CheckInvIsEmpty(origin_index)
 		}
 	}
 	openSheet(origin_index)
+	return 0
 }
 CheckEmptyByAxis(x,y)
 {

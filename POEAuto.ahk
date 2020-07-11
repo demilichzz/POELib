@@ -8,6 +8,9 @@ SetKeyDelay, 0, 3
 SetStoreCapslockMode, off
 autoShutDown:=0
 rare_identify_flg := 1
+useUnidRecipe := 1
+autoVendorTrashWhileSort := 0
+autoVendorRareWhileSort := 0
 #Include D:\Program Files\AutoHotkey\script\POELib\autoMacroLib.ahk
 #Include D:\Program Files\AutoHotkey\script\POELib\POELib.ahk
 
@@ -15,10 +18,40 @@ rare_identify_flg := 1
 {
 	autoShutDown := 1 - autoShutDown
 	if (autoShutDown=1){
-		TrayTip, ,自动关机开启
+		autoVendorTrashWhileSort := 1
+		autoVendorRareWhileSort := 1
+		
+		TrayTip, ,auto Shutdown On
 	}
 	else{
-		TrayTip, ,自动关机关闭
+		autoVendorTrashWhileSort := 0
+		autoVendorRareWhileSort := 0
+		
+		TrayTip, ,auto Shutdown Off
+	}
+}
+Return
+
+!^W::
+{
+	autoVendorTrashWhileSort := 1 - autoVendorTrashWhileSort
+	if (autoVendorTrashWhileSort=1){
+		TrayTip, ,auto Vendor Trash On
+	}
+	else{
+		TrayTip, ,auto Vendor Trash Off
+	}
+}
+Return
+
+!^E::
+{
+	autoVendorRareWhileSort := 1 - autoVendorRareWhileSort
+	if (autoVendorRareWhileSort=1){
+		TrayTip, ,auto Vendor Chaos Recipe On
+	}
+	else{
+		TrayTip, ,auto Vendor Chaos Recipe Off
 	}
 }
 Return
@@ -42,20 +75,20 @@ Return
 	storeScrolls()
 	if(true)	;if auto shutdown mode then vendor after sort dealed
 	{
-		if(true)
+		if(autoVendorTrashWhileSort=1)
 		{
 			POEConstantLib_constantDefine()
-			vendor_sheet_list := [itemType_Jewel,itemType_TempTrashNormal,itemType_TempTrash1,itemType_UniqueTemp2,itemType_UniqueTemp3] ;vendor list
+			vendor_sheet_list := [itemType_TempTrashNormal,itemType_TempTrash2,itemType_TempTrash3,itemType_UniqueTemp3] ;vendor list
 			for index, element in vendor_sheet_list
 			{
 				autoVendorTrash(element)
 			}
 		}
-		if(true)
+		if(autoVendorRareWhileSort=1)
 		{
 			autoChaosVendorMain()
 		}
-		if(true)
+		if(false)
 		{
 			setCraftList("cobalt")
 			autoCraftMain(itemType_CraftBase)
@@ -81,7 +114,7 @@ Return
 	CtrlMoveItemByGrid(0,4)
 	CtrlMoveItemByGrid(1,4)	;store scrolls
 	CtrlMoveItemByGrid(2,4)
-	vendor_sheet_list := [itemType_Jewel,itemType_TempTrashNormal,itemType_TempTrash1] ;vendor list
+	vendor_sheet_list := [itemType_TempTrashNormal,itemType_TempTrash2,itemType_TempTrash3,itemType_UniqueTemp2,itemType_UniqueTemp3] ;vendor list
 	for index, element in vendor_sheet_list
 	{
 		autoVendorTrash(element)
@@ -402,6 +435,11 @@ autoSort(sheet)		;auto sort main
 					CommonClick_left()		;unique&misc equip identifie	
 					Sleep,10
 				}
+				if(item_type=itemType_TempCraftBase)
+				{
+					CommonClick_left()		;magic craftbase identifie
+					Sleep,10
+				}
 				else if(item_type = itemType_Jewel)
 				{
 					CommonClick_left()		;identifie	
@@ -417,7 +455,7 @@ autoSort(sheet)		;auto sort main
 				}
 				else if(item_type >= itemType_Ring and item_type < itemType_2H)
 				{
-					if(rare_identify_flg=1)
+					if(rare_identify_flg=1 and useUnidRecipe=0)
 					{
 						CommonClick_left()		;identifie	
 						Sleep,10
@@ -510,6 +548,7 @@ autoSort(sheet)		;auto sort main
 	sortItemInBatch(array_type[itemType_Shoe],itemType_Shoe,12)		;Boot
 	sortItemInBatch(array_type[itemType_Body],itemType_Body,6)		;Body
 	sortItemInBatch(array_type[itemType_2H],itemType_2H,6)		;Two Handed
+	sortItemInBatch(array_type[itemType_TempTrash4],itemType_TempTrash4,60)		;Identified
 	sortItemInBatch(array_type[itemType_SpecialBase],itemType_SpecialBase,60)		;SpecialBase
 	sortItemInBatch(array_type[itemType_D],itemType_D,60)			;Div Card
 	sortItemInBatch(array_type[itemType_E],itemType_E,60)			;Essence
@@ -519,6 +558,7 @@ autoSort(sheet)		;auto sort main
 	sortItemInBatch(array_type[itemType_VaalGem],itemType_VaalGem,60)			;VaalGem
 	sortItemInBatch(array_type[itemType_HighQGem],itemType_HighQGem,60)			;HighQGem
 	sortItemInBatch(array_type[itemType_Oil],itemType_Oil,60)			;Oil
+	sortItemInBatch(array_type[itemType_Harvest],itemType_Harvest,60)			;Harvest
 	sortItemInBatch(array_type[itemType_Sample],itemType_Sample,60)			;Sample
 	sortItemInBatch(array_type[itemType_Flasks],itemType_Flasks,24)			;Flask
 	sortItemInBatch(array_type[itemType_Jewel],itemType_Jewel,60)		;Jewel
@@ -532,6 +572,8 @@ autoSort(sheet)		;auto sort main
 	sortItemInBatch(array_type[itemType_Valuable],itemType_Valuable,60)		    ;s/e,valueable rare move to No.4 temp tab
 	sortItemInBatch(array_type[itemType_Veiled],itemType_Veiled,60)		    ;veiled
 	sortItemInBatch(array_type[itemType_Enchanted],itemType_Enchanted,12)		    ;enchanted
+	sortItemInBatch(array_type[itemType_TempCraftBase],itemType_TempCraftBase,60)		;temp craftbase
+	sortItemInBatch(array_type[itemType_TempCraftBaseHigh],itemType_TempCraftBaseHigh,60)		;temp craftbase
 	sortItemInBatch(array_type[itemType_TempTrashNormal],itemType_TempTrashNormal,60)		;trash nonrare 
 	sortItemInBatch(array_type[itemType_TempTrashRare],itemType_TempTrashRare,60)		;trash rare
 	sortUniqueItem(array_type[itemType_UniqueCollect],itemType_UniqueCollect,60)		;unique temp
@@ -571,7 +613,7 @@ sortUniqueItem(array_axis,tab_index,periodCount)
 			}
 		}
 	}
-	CheckInvIsEmpty(source_sheet)
+	CheckInvIsEmpty(source_sheet,itemType_Valuable)
 }
 ;sort unique into unique collection sheet
 sortUniqueItemIntoTabs(tab_index,iCount,periodCount,full_mode_flg)
@@ -631,7 +673,7 @@ sortItemInBatch(array_axis,tab_index,periodCount)
 {
 	global
 	local full_mode_flg := true
-	if(tab_index=itemType_Temp or tab_index=itemType_Valuable or tab_index=itemType_Delve or tab_index=itemType_TempTrashNormal or tab_index=itemType_TempTrashRare or tab_index=itemType_SpecialBase or tab_index=itemType_UniqueTemp1 or tab_index=itemType_Veiled)	
+	if(tab_index=itemType_Temp or tab_index=itemType_Valuable or tab_index=itemType_Delve or (tab_index>=itemType_TempTrashNormal and tab_index<=itemType_TempTrash4) or tab_index=itemType_SpecialBase or tab_index=itemType_UniqueTemp1 or tab_index=itemType_Veiled or tab_index = itemType_TempCraftBase or tab_index = itemType_TempCraftBaseHigh)	
 	;if selected item type has different size (resonator,unique,random equip),then set full_mode_flg=true
 	{
 		full_mode_flg := true
@@ -665,7 +707,7 @@ sortItemInBatch(array_axis,tab_index,periodCount)
 	}
 	if(array_axis.MaxIndex()>0)
 	{
-		CheckInvIsEmpty(source_sheet)
+		CheckInvIsEmpty(source_sheet,itemType_Valuable)
 	}
 }
 ;full_mode_flg=true : try to store every grid until last
@@ -861,7 +903,7 @@ sortFailItem(tab_index,iCount,periodCount,full_mode_flg)
 	}
 	else if((tab_index>=itemType_Ring and tab_index<=itemType_Belt))
 	{
-		sortItemIntoTabs(itemType_Jewel,iCount,periodCount,true)
+		sortItemIntoTabs(itemType_TrashTrinkets,iCount,periodCount,true)
 	}
 	else if(tab_index=itemType_TempTrashNormal)
 	{

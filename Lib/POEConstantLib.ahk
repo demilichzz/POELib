@@ -11,20 +11,20 @@ POEConstantLib_constantDefine()
 	inv_start_y := 615
 	disp := 52.5
 	;for open stash tab
-	tablist_x := 641
+	tablist_x := 648
 	tablist_y := 145
-	tablist_color := 0x57300B	;show tablist button
-	currency_x := 662
+	tablist_color := 0x613411	;show tablist button
+	currency_x := 666
 	currency_y := 811
-	currency_color_1 := 0x030201
-	currency_color_2 := 0x050302
-	currency_color_3 := 0x030201	;check tablist opened
+	currency_color_1 := 0x573621
+	currency_color_2 := 0x573621
+	currency_color_3 := 0x573621	;check tablist opened
 	currency_color_list := Array(currency_color_1,currency_color_2,currency_color_3)
 	tab_start_x := 800
 	tab_start_y := 134		;first tab loc
 	tab_disp_y := 22
 	current_page := 0
-	scroll_start_x := 881
+	scroll_start_x := 898
 	scroll_start_y := 217
 	scroll_disp := 130
 	scroll_color := 0x000000
@@ -33,12 +33,12 @@ POEConstantLib_constantDefine()
 	chest_y := 506
 	chest_close_x := 630
 	chest_close_y := 68
-	chest_close_cc := 0x030704
+	chest_close_cc := 0x030507
 	vendor_x := 830
 	vendor_y := 454
-	vendor_sell_x := 922
-	vendor_sell_y := 338
-	vendor_sell_cc := 0x5F5A46
+	vendor_sell_x := 923
+	vendor_sell_y := 316
+	vendor_sell_cc := 0xC8BD92
 	vendor_check_x := 928
 	vendor_check_y := 19
 	vendor_check_cc := 0xE3D7A6
@@ -59,6 +59,22 @@ POEConstantLib_constantDefine()
 	itemType_Gem:=11
 	itemType_VaalGem:=12
 	itemType_Flasks:=13
+	itemType_Delve:=15
+	itemType_Shard:=16
+	itemType_Jewel:=17
+	itemType_ClusterJewel:=18
+	itemType_CraftBase:=19
+	itemType_TempTrashNormal:=20
+	itemType_TempTrashRare:=21
+	itemType_TempTrash1:=22
+	itemType_TempTrash2:=23
+	itemType_TempTrash3:=24
+	itemType_TempTrash4:=25
+	itemType_UniqueTemp1:=26
+	itemType_UniqueTemp2:=27
+	itemType_UniqueTemp3:=28
+	itemType_Veiled:=29
+	itemType_UniqueCollect:=30
 	itemType_Ring:=31
 	itemType_Amu:=32
 	itemType_Belt:=33
@@ -73,32 +89,19 @@ POEConstantLib_constantDefine()
 	itemType_ShoeBak:=42
 	itemType_BodyBak:=43
 	itemType_2HBak:=44
-	itemType_Delve:=15
-	itemType_Shard:=16
-	
-	itemType_Jewel:=17
-	itemType_ClusterJewel:=18
-	itemType_SpecialBase:=64
-	itemType_TempTrashNormal:=20
-	itemType_TempTrashRare:=21
-	itemType_TempTrash1:=22
-	itemType_TempTrash2:=23
-	itemType_TempTrash3:=24
-	itemType_TempTrash4:=25
-	itemType_UniqueTemp1:=26
-	itemType_UniqueTemp2:=27
-	itemType_UniqueTemp3:=28
-	itemType_Veiled:=29
-	itemType_UniqueCollect:=30
+	itemType_Harvest:=45
+	itemType_CraftRollBase:=55
+	itemType_TempCraftBase:=56
 	itemType_Sample:=57
 	itemType_Oil:=58
 	itemType_Enchanted:=59
 	itemType_HighQGem:=61
 	itemType_Prophecy:=62
-	itemType_CraftBase:=19
-	
+	itemType_SpecialBase:=64
 	itemType_ValuableJewel:=78
 	itemType_CobaltJewel:=80
+	itemType_TempCraftBaseHigh:=81
+	itemType_TrashTrinkets:=90
 	;
 	
 	;craft
@@ -117,6 +120,59 @@ POEConstantLib_constantDefine()
 	match_min_attrib_magic := 0
 	match_min_attrib_rare := 0
 	match_mode := 0
+	;
+	
+	;type group
+	type_group := Object()
+	type_group[1] := ["Unset Ring","Ring"]
+	type_group[2] := ["Two-Stone Ring","Ring"]
+	type_group[3] := ["Prismatic Ring","Ring"]
+	type_group[4] := ["Cerulean Ring","Ring"]
+	type_group[5] := ["Opal Ring","Ring"]
+	type_group[6] := ["Steel Ring","Ring"]
+	type_group[7] := ["Vermillion Ring","Ring"]
+	type_group[8] := ["Agate Amulet","Amulet"]
+	type_group[9] := ["Citrine Amulet","Amulet"]
+	type_group[10] := ["Turquoise Amulet","Amulet"]
+	type_group[11] := ["Onyx Amulet","Amulet"]
+	type_group[12] := ["Marble Amulet","Amulet"]
+	type_group[13] := ["Stygian Vise","Belt"]
+	type_group[14] := ["Leather Belt","Belt"]
+	type_group[15] := ["Heavy Belt","Belt"]
+	type_group[16] := ["Crystal Belt","Belt"]
+	type_group[17] := ["Crimson Jewel","Jewel"]
+	type_group[18] := ["Viridian Jewel","Jewel"]
+	type_group[19] := ["Cobalt Jewel","Jewel"]
+	type_group[20] := ["Prismatic Jewel","Jewel"]
+	type_group[21] := ["Murderous Eye","Jewel"]
+	type_group[22] := ["Searching Eye","Jewel"]
+	type_group[23] := ["Hypnotic Eye","Jewel"]
+	type_group[24] := ["Hubris Circlet","Helmet"]
+	type_group[25] := ["Two-Toned Boots","Boot"]
+	type_group[26] := ["Sorcerer Boots","Boot"]
+	type_group[27] := ["Fingerless Silk Gloves","Glove"] 
+	type_group[28] := ["Gripped Gloves","Glove"] 
+	type_group[29] := ["Spiked Gloves","Glove"] 
+	type_group[30] := ["Diamond Ring","Ring"]
+	type_group[31] := ["Coral Ring","Ring"]
+	type_group[32] := ["Iron Ring","Ring"]
+	type_group[33] := ["Paua Ring","Ring"]
+	type_group[34] := ["Sapphire Ring","Ring"]
+	type_group[35] := ["Topaz Ring","Ring"]
+	type_group[36] := ["Ruby Ring","Ring"]
+	type_group[37] := ["Gold Ring","Ring"]
+	type_group[38] := ["Moonstone Ring","Ring"]
+	type_group[39] := ["Amethyst Ring","Ring"]
+	type_group[40] := ["Coral Amulet","Amulet"]
+	type_group[41] := ["Paua Amulet","Amulet"]
+	type_group[42] := ["Amber Amulet","Amulet"]
+	type_group[43] := ["Jade Amulet","Amulet"]
+	type_group[44] := ["Lapis Amulet","Amulet"]
+	type_group[45] := ["Gold Amulet","Amulet"]
+	type_group[46] := ["Blue Pearl Amulet","Amulet"]
+	type_group[47] := ["Gavel","Hammer"]
+	type_group[48] := ["Rock Breaker","Hammer"]
+	type_group[49] := ["Stone Hammer","Hammer"]
 	;
 	
 	;for analyzer

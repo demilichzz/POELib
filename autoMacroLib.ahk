@@ -36,8 +36,6 @@ Return
 
 !Numpad2::
 {
-	x:=928
-	y:=19
 	PixelGetColor, color, %x%, %y%, RGB
 	Clipboard = %x%,%y%,%color%
 	Msgbox %x%,%y%,%color%
