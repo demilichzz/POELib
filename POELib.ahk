@@ -115,11 +115,18 @@ ColorClickMulti(x,y,xtar,ytar,cclist,mode,clickdelay)
 setCraftList(craft_type)
 {
 	global
-	local craft_magic_list := Object()
-	local craft_rare_list := Object()
-	local craft_ensure_list := Object()
+	craft_magic_list := Object()
+	craft_rare_list := Object()
+	craft_ensure_list := Object()
 	match_mode := craft_type
-	if(craft_type="warcry cluster")
+	if(craft_type="cold cluster")
+	{
+		craft_magic_list.push(Object())
+		craft_magic_list[1] := ["# Added Passive Skill is Blanketed Snow",1]
+		match_min_attrib_magic := 1
+		match_min_attrib_rare := 0
+	}
+	else if(craft_type="warcry cluster")
 	{
 		Loop,3
 		{
@@ -257,19 +264,21 @@ analyzeItemExMatch(cp,craft_magic_list,craft_rare_list,craft_ensure_list)
 				
 				if(InStr(match_mode,"cluster")>0)
 				{
-					attribute_start_index:=A_Index+4
+					attribute_start_index:=A_Index+5
 				}
 				else
 				{
 					attribute_start_index:=A_Index+1
 				}
 			}
+			;MsgBox % craft_list.Length()
 			;~ if(getModValue(attribute_str,"Adds # Passive Skills (enchant)")>0)
 			;~ {
 				;~ attribute_start_index:=A_Index+1
 			;~ }		
 			if(A_Index>attribute_start_index and A_Index<attribute_end_index)	;next of ilvl and ----, then attributes
 			{
+				;MsgBox %A_Index%
 				if((InStr(attribute_str,"--------")>0 or InStr(attribute_str,"Place into an ")>0)and attribute_end_index=99999)
 				{
 					attribute_end_index := A_Index
@@ -481,7 +490,15 @@ sortItem()		;sort single item by clipboard
 	}
 	else if(Instr(clipboard,"Map Tier:")>0 and Instr(clipboard,"Rarity: Divination Card")=0)	;identified map and not div card
 	{
-		return itemType_M
+		item_info := getItemInfoClass(Clipboard)
+		if(item_info["map_tier"]>=13 and item_info["rarity"] <>2)
+		{
+			return itemType_TempMap
+		}
+		else
+		{
+			return itemType_M
+		}
 	}
 	else if(Instr(clipboard,"Shaper Scarab")>0 or Instr(clipboard,"Elder Scarab")>0 or (Instr(clipboard,"Mortal")>0 and Instr(clipboard,"Can be used in a personal Map Device.")>0))	;scarab and queen fragment
 	{
@@ -528,11 +545,11 @@ sortItem()		;sort single item by clipboard
 			}
 			if (A_Index = 2)
 			{
-				if(Instr(A_LoopField,"Map")>0)
-				{
-					return itemType_M
-				}
-				else if((Instr(A_LoopField,"Essence")>0 or Instr(A_LoopField,"Remnant of Corruption")>0) and currency_flg=true)
+				;~ if(Instr(A_LoopField,"Map")>0)
+				;~ {
+					;~ return itemType_M
+				;~ }
+				if((Instr(A_LoopField,"Essence")>0 or Instr(A_LoopField,"Remnant of Corruption")>0) and currency_flg=true)
 				{
 					return itemType_E
 				}
@@ -708,6 +725,7 @@ getItemInfoClass(cp)
 	item_info_object["rarity"] := -1	;not equip
 	item_info_object["ilvl"] := 0
 	item_info_object["attribute_str"] := Object()
+	item_info_object["map_tier"] := 0
 	local attribute_str := ""
 	local type_index := 2		;item base type check
 	local ilvl_index := 99999
@@ -754,6 +772,10 @@ getItemInfoClass(cp)
 					Break
 				}
 			}
+		}
+		if(getModValue(attribute_str,"Map Tier: #")>0)
+		{
+			item_info_object["map_tier"] := getModValue(attribute_str,"Map Tier: #")
 		}
 		if(getModValue(attribute_str,"Item Level: #")>0)
 		{

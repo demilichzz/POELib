@@ -23,11 +23,11 @@ autoVendorRareWhileSort := 0
 	map_close_y := 68
 	map_close_cc := 0x030507
 	quarry_cnt:=0
-	while(quarry_cnt<50000)
+	while(true)
 	{
 		autoQuarry()
 		quarry_cnt:=quarry_cnt+1
-		if(mod(quarry_cnt,20)=19)
+		if(mod(quarry_cnt,20)=1)
 		{
 			checkSeedFull()
 		}
@@ -57,6 +57,7 @@ Return
 	dist_harvest:=harvest_obj["dist"]
 	angle_harvest:=harvest_obj["angle"]
 	;MsgBox phase:%phase%`npredict:%predict%`nx:%x%`ny;%y%`ndist:%dist%`nangle:%angle%`nx_harvest:%x_harvest%`ny_harvest;%y_harvest%`ndist_harvest:%dist_harvest%`nangle_harvest:%angle_harvest%`n
+	;errorHandle()
 	checkSeedFull()
 }
 Return
@@ -145,7 +146,7 @@ autoQuarry()
 			}
 			if(phase=3)
 			{
-				if(waypoint_obj["angle"]>270)
+				if(waypoint_obj["angle"]>270 or waypoint_obj["angle"]<5)
 				{
 					charMoveByDir(-0.7,-0.7,400,true,true)
 				}
@@ -157,7 +158,7 @@ autoQuarry()
 			}
 			if(phase=4)
 			{
-				if(waypoint_obj["angle"]>=0 and waypoint_obj["angle"]<45)
+				if(waypoint_obj["angle"]>=5 and waypoint_obj["angle"]<45)
 				{
 					charMoveByDir(0.7,-0.3,400,true,true)
 				}
@@ -270,12 +271,19 @@ checkSeedFull()
 	}
 	if(not CheckEmptyByAxis(1822,615))
 	{
-		reloginToHideout()
-		moveToStash()
-		storeSeeds()
-		moveToWP()
-		enterNewMap()
-		return
+		local execute_success:=reloginToHideout()
+		if(execute_success=0)
+		{
+			moveToStash()
+			storeSeeds()
+			moveToWP()
+			enterNewMap()
+			return
+		}
+		else
+		{
+			errorHandle()
+		}
 	}
 	while(CheckColor(1342,77,0xCBA069)=true)
 	{
@@ -291,8 +299,39 @@ checkSeedFull()
 errorHandle()
 {
 	global
-	reloginToHideout()
-	ColorClick(949,463,329,57,0xDBBA7E,true,1000)
+	local dc_sts := checkDC()
+	local cs_sts := checkCharSelect()
+	if(dc_sts)
+	{
+		login()		;if dc'd login to charselect
+	}
+	else if(cs_sts)
+	{
+		;if charselect do nothing
+	}
+	else
+	{
+		logout()	;else logout to charselect
+	}
+	loginFromCharselect()
+	local execute_success:=enterHideout()
+	if(execute_success=0)
+	{
+		ColorClick(949,463,329,57,0xDBBA7E,true,1000)
+	}
+	else
+	{
+		errorHandle()
+	}
+}
+
+checkDC()
+{
+	return (CheckColor(1227,706,0xFEC076) and CheckColor(1233,750,0xFEC076))
+}
+checkCharSelect()
+{
+	return CheckColor(1783,659,0xFEC076)
 }
 
 moveToStash()
@@ -324,35 +363,115 @@ moveToWP()
 
 reloginToHideout()
 {
+	execute_success:=logout()
+	if(execute_success=0)
+	{
+		execute_success:=loginFromCharselect()
+	}
+	if(execute_success=0)
+	{
+		execute_success:=enterHideout()
+	}
+	return execute_success
+}
+
+logout()
+{
 	cc := CheckColor(847,472,0xFEC076)
 	while(cc<>true)
 	{
 		Send,{Esc}
 		Sleep,1000
 		cc := CheckColor(847,472,0xFEC076)
+		if(A_Index>60)
+		{
+			return -1
+		}
 	}
-	ColorClick(847,472,1783,659,0xFEC076,true,500)
-	ColorClick(1783,659,1783,659,0xFEC076,false,500)
-	WaitFor(266,1004,0x090801,true)
+	return ColorClick(847,472,1783,659,0xFEC076,true,500)
+}
+
+login()
+{
+	execute_success:=WaitFor(1227,706,0xFEC076,true)
+	if(execute_success=0)
+	{
+		execute_success:=ColorClick(1227,706,1227,706,0xFEC076,false,500)
+	}
+	return execute_success
+}
+
+loginFromCharselect()
+{
+	execute_success:=WaitFor(1783,659,0xFEC076,true)
+	if(execute_success=0)
+	{
+		execute_success:=ColorClick(1783,659,1783,659,0xFEC076,false,500)
+	}
+	if(execute_success=0)
+	{
+		execute_success:=WaitFor(266,1004,0x090801,true)
+	}
+	return execute_success
+}
+
+enterHideout()
+{
 	Sleep,1000
 	Send,{Enter}/hideout{Enter}
 	Sleep,5000
-	WaitFor(266,1004,0x090801,true)
-	Send,{Tab}
+	execute_success:=WaitFor(1339,947,0xC8C8DC,true)
+	if(execute_success=0)
+	{
+		Send,{Tab}
+	}
+	return execute_success
 }
 
 enterNewMap()
 {
+	global
 	Send,{Ctrl Down}
 	Sleep,10
-	ColorClick(310,120,310,120,0xFEC076,true,500)
-	ColorClick(391,156,391,156,0xFEC076,true,500)
-	ColorClick(284,280,460,335,0xEAB06B,true,500)
-	ColorClick(460,335,460,335,0xEAB06B,false,500)
+	if(ColorClick(310,120,310,120,0xFEC076,true,500)=-1)
+	{
+		Send,{Ctrl Up}
+		errorHandle()
+		Sleep,1000
+		return enterNewMap()
+	}
+	if(ColorClick(391,156,391,156,0xFEC076,true,500)=-1)
+	{
+		Send,{Ctrl Up}
+		errorHandle()
+		Sleep,1000
+		return enterNewMap()
+	}
+	if(ColorClick(284,280,460,335,0xEAB06B,true,500)=-1)
+	{
+		Send,{Ctrl Up}
+		errorHandle()
+		Sleep,1000
+		return enterNewMap()
+	}
+	if(ColorClick(460,335,460,335,0xEAB06B,false,500)=-1)
+	{
+		Send,{Ctrl Up}
+		errorHandle()
+		Sleep,1000
+		return enterNewMap()
+	}
 	Send,{Ctrl Up}
 	Sleep,2000
-	WaitFor(266,1004,0x090801,true)
+	local execute_success:=WaitFor(266,1004,0x090801,true)
+	if(execute_success=-1)
+	{
+		errorHandle()
+		Sleep,1000
+		return enterNewMap()
+	}
 	Sleep,500
+	return execute_success
 }
 
 getWaypointPos(wp_last)

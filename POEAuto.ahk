@@ -134,9 +134,9 @@ Return
 ~^Numpad6::		;auto craft
 {
 	POEConstantLib_constantDefine()
-	setCraftList("cobalt")
-	autoCraftMain(itemType_CraftBase)
-	;autoCraftItem()
+	setCraftList("cold cluster")
+	;autoCraftMain(itemType_CraftBase)
+	autoCraftItem()
 	endExecute()
 }
 Return
@@ -440,7 +440,7 @@ autoSort(sheet)		;auto sort main
 					CommonClick_left()		;magic craftbase identifie
 					Sleep,10
 				}
-				else if(item_type = itemType_Jewel)
+				else if(item_type = itemType_Jewel or item_type = itemType_TrashTrinkets)
 				{
 					CommonClick_left()		;identifie	
 					Sleep,10
@@ -552,6 +552,7 @@ autoSort(sheet)		;auto sort main
 	sortItemInBatch(array_type[itemType_SpecialBase],itemType_SpecialBase,60)		;SpecialBase
 	sortItemInBatch(array_type[itemType_D],itemType_D,60)			;Div Card
 	sortItemInBatch(array_type[itemType_E],itemType_E,60)			;Essence
+	sortItemInBatch(array_type[itemType_TempMap],itemType_TempMap,60)	;Map
 	sortItemInBatch(array_type[itemType_M],itemType_M,60)			;Map
 	sortItemInBatch(array_type[itemType_Misc],itemType_Misc,60)			;Misc
 	sortItemInBatch(array_type[itemType_Gem],itemType_Gem,60)			;Gem
@@ -562,7 +563,7 @@ autoSort(sheet)		;auto sort main
 	sortItemInBatch(array_type[itemType_Sample],itemType_Sample,60)			;Sample
 	sortItemInBatch(array_type[itemType_Flasks],itemType_Flasks,24)			;Flask
 	sortItemInBatch(array_type[itemType_Jewel],itemType_Jewel,60)		;Jewel
-	sortItemInBatch(array_type[itemType_CraftBase],itemType_CraftBase,60)		;Valueable Jewel
+	sortItemInBatch(array_type[itemType_TempMap],itemType_TempMap,60)		;Valueable Jewel
 	sortItemInBatch(array_type[itemType_ValuableJewel],itemType_ValuableJewel,60)		;Valueable Jewel
 	sortItemInBatch(array_type[itemType_CobaltJewel],itemType_CobaltJewel,60)		;Valueable Jewel
 	sortItemInBatch(array_type[itemType_ClusterJewel],itemType_ClusterJewel,60)		;Cluster Jewel
@@ -576,6 +577,7 @@ autoSort(sheet)		;auto sort main
 	sortItemInBatch(array_type[itemType_TempCraftBaseHigh],itemType_TempCraftBaseHigh,60)		;temp craftbase
 	sortItemInBatch(array_type[itemType_TempTrashNormal],itemType_TempTrashNormal,60)		;trash nonrare 
 	sortItemInBatch(array_type[itemType_TempTrashRare],itemType_TempTrashRare,60)		;trash rare
+	sortItemInBatch(array_type[itemType_TrashTrinkets],itemType_TrashTrinkets,60)		;trash trinkets
 	sortUniqueItem(array_type[itemType_UniqueCollect],itemType_UniqueCollect,60)		;unique temp
 	sortItemInBatch(array_type[itemType_C],0,60)		;currency
 	

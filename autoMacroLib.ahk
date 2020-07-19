@@ -155,7 +155,12 @@ ColorClick(x,y,xtar,ytar,cc,mode,clickdelay)
 			CommonClick(x,y)
 			Sleep,clickdelay
 		}
+		if(A_Index*clickdelay>=120000)
+		{
+			return -1
+		}
 	}	
+	return 0
 }
 
 ColorClickRight(x,y,xtar,ytar,cc,mode,clickdelay)
@@ -216,7 +221,12 @@ WaitFor(x,y,cc,mode)
 		{
 			Sleep,1000
 		}
-	}	
+		if(A_Index>120)
+		{
+			return -1
+		}
+	}
+	return 0
 }
 
 CommonClick(x,y)

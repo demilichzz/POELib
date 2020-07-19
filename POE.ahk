@@ -162,6 +162,7 @@ LWin::return
 	Send {4}	
 	Send {5}
 	Send {S}
+	Send {T}
 }
 Return
 

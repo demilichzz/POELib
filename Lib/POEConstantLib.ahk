@@ -37,8 +37,8 @@ POEConstantLib_constantDefine()
 	vendor_x := 830
 	vendor_y := 454
 	vendor_sell_x := 923
-	vendor_sell_y := 316
-	vendor_sell_cc := 0xC8BD92
+	vendor_sell_y := 337
+	vendor_sell_cc := 0xE3D7A6
 	vendor_check_x := 928
 	vendor_check_y := 19
 	vendor_check_cc := 0xE3D7A6
@@ -63,7 +63,7 @@ POEConstantLib_constantDefine()
 	itemType_Shard:=16
 	itemType_Jewel:=17
 	itemType_ClusterJewel:=18
-	itemType_CraftBase:=19
+	itemType_TempMap:=19
 	itemType_TempTrashNormal:=20
 	itemType_TempTrashRare:=21
 	itemType_TempTrash1:=22
@@ -101,6 +101,7 @@ POEConstantLib_constantDefine()
 	itemType_ValuableJewel:=78
 	itemType_CobaltJewel:=80
 	itemType_TempCraftBaseHigh:=81
+	itemType_CraftBase:=89
 	itemType_TrashTrinkets:=90
 	;
 	
