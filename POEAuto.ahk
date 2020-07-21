@@ -78,7 +78,7 @@ Return
 		if(autoVendorTrashWhileSort=1)
 		{
 			POEConstantLib_constantDefine()
-			vendor_sheet_list := [itemType_TempTrashNormal,itemType_TempTrash2,itemType_TempTrash3,itemType_UniqueTemp3] ;vendor list
+			vendor_sheet_list := [itemType_TempTrashNormal,itemType_TempTrash2,itemType_TempTrash3,itemType_UniqueTemp3,itemType_TrashTrinkets] ;vendor list
 			for index, element in vendor_sheet_list
 			{
 				autoVendorTrash(element)
